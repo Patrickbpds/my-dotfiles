@@ -122,9 +122,13 @@ sudo pacman -S python python-pip
 ### 🛠️ Quick Install
 
 ```bash
-# Clone repository
+# Clone repository (you can choose any directory)
 git clone https://github.com/Patrickbpds/my-dotfiles.git ~/.dotfiles
 cd ~/.dotfiles
+
+# Alternative: clone to current directory
+# git clone https://github.com/Patrickbpds/my-dotfiles.git .
+# cd my-dotfiles
 
 # Backup existing config (recommended)
 mkdir -p ~/.config-backup
