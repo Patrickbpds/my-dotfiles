@@ -1,0 +1,62 @@
+{
+  "neodev": {
+    "library": {
+      "enabled": true,
+      "plugins": true
+    }
+  },
+  "neoconf": {
+    "plugins": {
+      "lua_ls": {
+        "enabled": true
+      }
+    }
+  },
+  "java": {
+    "jdk": {
+      "autodetect": {
+        "enabled": true
+      },
+      "auto_install": false
+    },
+    "configuration": {
+      "runtimes": [
+        {
+          "name": "JavaSE-1.8",
+          "path": "/usr/lib/jvm/java-8-openjdk"
+        },
+        {
+          "name": "JavaSE-11",
+          "path": "/usr/lib/jvm/java-11-openjdk"
+        },
+        {
+          "name": "JavaSE-17",
+          "path": "/usr/lib/jvm/java-17-openjdk"
+        },
+        {
+          "name": "JavaSE-21",
+          "path": "/usr/lib/jvm/java-21-openjdk"
+        },
+        {
+          "name": "JavaSE-24",
+          "path": "/usr/lib/jvm/java-24-jdk"
+        },
+        {
+          "name": "JavaSE-25",
+          "path": "/usr/lib/jvm/java-25-openjdk"
+        }
+      ]
+    },
+    "import": {
+      "gradle": {
+        "enabled": true,
+        "wrapper": {
+          "enabled": true
+        }
+      },
+      "maven": {
+        "enabled": true
+      }
+    }
+  }
+}
