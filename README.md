@@ -84,7 +84,7 @@ mkdir -p ~/.config-backup
 cp -r ~/.config/nvim ~/.config-backup/ 2>/dev/null || true
 
 # Install configuration
-stow -v -R -t ~ -d . .config
+stow -v -R -t ~/.config nvim
 
 # Install plugins (first run will take longer)
 nvim --headless -c 'Lazy sync' +qa
@@ -97,7 +97,7 @@ If you prefer not to use GNU Stow:
 ```bash
 # Clone and copy files
 git clone https://github.com/Patrickbpds/my-dotfiles.git ~/.dotfiles
-cp -r ~/.dotfiles/.config/nvim ~/.config/
+cp -r ~/.dotfiles/nvim ~/.config/
 
 # Install plugins
 nvim
@@ -170,10 +170,10 @@ nvim
 Edit files directly in the stow directories:
 ```bash
 # Edit Neovim config
-vim .config/nvim/lua/config/options.lua
+vim nvim/lua/config/options.lua
 
 # Restow to apply changes
-stow -R .config
+stow -R -t ~/.config nvim
 ```
 
 ### Adding New Configurations
@@ -192,64 +192,63 @@ stow mypackage
 
 ```
 my-dotfiles/
-├── 📁 .config/
-│   └── 📁 nvim/                    # 🏠 Complete Neovim configuration
-│       ├── 📄 init.lua             # 🚀 Main initialization file
-│       ├── 📄 lazyvim.json         # ⚙️ LazyVim configuration
-│       ├── 📄 lazy-lock.json       # 🔒 Plugin lockfile
-│       ├── 📄 stylua.toml          # 💅 Lua formatter config
-│       ├── 📄 .neoconf.json        # 🔧 Neoconf settings
-│       ├── 📄 .gitignore           # 🚫 Git ignore rules
-│       └── 📁 lua/
-│           ├── 📁 config/          # ⚙️ Core configurations
-│           │   ├── 📄 autocmds.lua # 🤖 Auto commands
-│           │   ├── 📄 keymaps.lua  # ⌨️ Key mappings
-│           │   ├── 📄 lazy.lua     # 📦 Plugin manager
-│           │   ├── 📄 options.lua  # 🔧 Neovim options
-│           │   └── 📄 lazyvim.json # ⚙️ LazyVim config
-│           ├── 📁 lang_servers/    # 🗣️ Language server configs
-│           │   └── 📄 intellij-java-google-style.xml
-│           └── 📁 plugins/         # 🔌 Plugin configurations
-│               ├── 📁 java/        # ☕ Java-specific plugins
-│               │   ├── 📄 build-run.lua
-│               │   ├── 📄 dependency-management.lua
-│               │   ├── 📄 java.lua
-│               │   ├── 📄 java-utils.lua
-│               │   ├── 📄 keymaps-java.lua
-│               │   ├── 📄 logs.lua
-│               │   ├── 📄 migrations.lua
-│               │   ├── 📄 profiles-management.lua
-│               │   └── 📁 templates/
-│               │       ├── 📄 crud-files.lua
-│               │       ├── 📄 java-files.lua
-│               │       └── 📄 springboot-files.lua
-│               ├── 📄 autopairs.lua      # 🔄 Auto pairs
-│               ├── 📄 better-ts-errors.lua # 🚨 Better TS errors
-│               ├── 📄 cmp.lua            # 💡 Completion
-│               ├── 📄 comment.lua        # 💬 Commenting
-│               ├── 📄 dap.lua            # 🐛 Debug adapter
-│               ├── 📄 git.lua            # 🐙 Git integration
-│               ├── 📄 grapple.lua        # 🪝 Fast navigation
-│               ├── 📄 harpoon.lua        # ⚓ File marking
-│               ├── 📄 lint.lua           # 🔍 Linting
-│               ├── 📄 lsp.lua            # 🗣️ Language server
-│               ├── 📄 lualine.lua        # 📊 Status line
-│               ├── 📄 neo-tree.lua       # 📁 File explorer
-│               ├── 📄 session.lua        # 💾 Session management
-│               ├── 📄 snippets.lua       # 📝 Code snippets
-│               ├── 📄 theme.lua          # 🎨 Color scheme
-│               ├── 📄 ui.lua             # 🖼️ UI enhancements
-│               ├── 📄 wakatime.lua       # ⏱️ Time tracking
-│               └── 📄 which-key.lua      # ❓ Key hinting
-├── 📄 KEYMAPS_LEARNING.md          # 📚 Keymaps learning guide
-└── 📄 README.md                    # 📖 This documentation
+├── 📁 nvim/                        # 🏠 Complete Neovim configuration
+│   ├── 📄 init.lua                  # 🚀 Main initialization file
+│   ├── 📄 lazyvim.json              # ⚙️ LazyVim configuration
+│   ├── 📄 lazy-lock.json            # 🔒 Plugin lockfile
+│   ├── 📄 stylua.toml               # 💅 Lua formatter config
+│   ├── 📄 .neoconf.json             # 🔧 Neoconf settings
+│   ├── 📄 .gitignore                # 🚫 Git ignore rules
+│   └── 📁 lua/
+│       ├── 📁 config/               # ⚙️ Core configurations
+│       │   ├── 📄 autocmds.lua      # 🤖 Auto commands
+│       │   ├── 📄 keymaps.lua       # ⌨️ Key mappings
+│       │   ├── 📄 lazy.lua          # 📦 Plugin manager
+│       │   ├── 📄 options.lua       # 🔧 Neovim options
+│       │   └── 📄 lazyvim.json      # ⚙️ LazyVim config
+│       ├── 📁 lang_servers/         # 🗣️ Language server configs
+│       │   └── 📄 intellij-java-google-style.xml
+│       └── 📁 plugins/              # 🔌 Plugin configurations
+│           ├── 📁 java/             # ☕ Java-specific plugins
+│           │   ├── 📄 build-run.lua
+│           │   ├── 📄 dependency-management.lua
+│           │   ├── 📄 java.lua
+│           │   ├── 📄 java-utils.lua
+│           │   ├── 📄 keymaps-java.lua
+│           │   ├── 📄 logs.lua
+│           │   ├── 📄 migrations.lua
+│           │   ├── 📄 profiles-management.lua
+│           │   └── 📁 templates/
+│           │       ├── 📄 crud-files.lua
+│           │       ├── 📄 java-files.lua
+│           │       └── 📄 springboot-files.lua
+│           ├── 📄 autopairs.lua      # 🔄 Auto pairs
+│           ├── 📄 better-ts-errors.lua # 🚨 Better TS errors
+│           ├── 📄 cmp.lua            # 💡 Completion
+│           ├── 📄 comment.lua        # 💬 Commenting
+│           ├── 📄 dap.lua            # 🐛 Debug adapter
+│           ├── 📄 git.lua            # 🐙 Git integration
+│           ├── 📄 grapple.lua        # 🪝 Fast navigation
+│           ├── 📄 harpoon.lua        # ⚓ File marking
+│           ├── 📄 lint.lua           # 🔍 Linting
+│           ├── 📄 lsp.lua            # 🗣️ Language server
+│           ├── 📄 lualine.lua        # 📊 Status line
+│           ├── 📄 neo-tree.lua       # 📁 File explorer
+│           ├── 📄 session.lua        # 💾 Session management
+│           ├── 📄 snippets.lua       # 📝 Code snippets
+│           ├── 📄 theme.lua          # 🎨 Color scheme
+│           ├── 📄 ui.lua             # 🖼️ UI enhancements
+│           ├── 📄 wakatime.lua       # ⏱️ Time tracking
+│           └── 📄 which-key.lua      # ❓ Key hinting
+├── 📄 KEYMAPS_LEARNING.md           # 📚 Keymaps learning guide
+└── 📄 README.md                     # 📖 This documentation
 ```
 
 ### 🎯 Key Directories Explained
 
-- **`.config/nvim/lua/config/`** - Core Neovim settings and LazyVim configuration
-- **`.config/nvim/lua/plugins/`** - All plugin configurations and customizations
-- **`.config/nvim/lua/plugins/java/`** - Java-specific tools and integrations
+- **`nvim/lua/config/`** - Core Neovim settings and LazyVim configuration
+- **`nvim/lua/plugins/`** - All plugin configurations and customizations
+- **`nvim/lua/plugins/java/`** - Java-specific tools and integrations
 - **`KEYMAPS_LEARNING.md`** - Interactive guide to learn all keyboard shortcuts
 
 ## 🔄 Management Commands
@@ -258,19 +257,19 @@ my-dotfiles/
 
 ```bash
 # Install/link configurations
-stow .config
+stow -t ~/.config nvim
 
 # Remove/unlink configurations
-stow -D .config
+stow -D -t ~/.config nvim
 
 # Reinstall (useful after editing)
-stow -R .config
+stow -R -t ~/.config nvim
 
 # Simulate actions (dry run)
-stow -n .config
+stow -n -t ~/.config nvim
 
 # Verbose output
-stow -v .config
+stow -v -t ~/.config nvim
 ```
 
 ### Maintenance
@@ -283,7 +282,7 @@ find ~ -xtype l -print
 git pull origin main
 
 # Restow after updates
-stow -R .config
+stow -R -t ~/.config nvim
 
 # Clean broken symlinks
 find ~ -maxdepth 1 -name ".*" -type l ! -exec test -e {} \; -delete 2>/dev/null || true
