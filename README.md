@@ -1,23 +1,12 @@
 # 🚀 Patrick's Neovim Configuration
 
-[![Neovim Version](https://img.shields.io/badge/Neovim-0.9+-blue.svg)](https://neovim.io/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Neovim Version](https://img.shields.io/badge/Neovim-blue.svg)](https://neovim.io/)
 [![GitHub stars](https://img.shields.io/github/stars/Patrickbpds/my-dotfiles.svg)](https://github.com/Patrickbpds/my-dotfiles/stargazers)
-
 A modern, feature-rich Neovim configuration optimized for Java development and full-stack programming. Built with LazyVim, featuring LSP integration, debugging capabilities, and a curated plugin ecosystem for maximum productivity.
 
 ## 🖼️ Preview
 
-### Main Interface
-![Neovim Interface](https://via.placeholder.com/800x400/2d3748/ffffff?text=Neovim+Interface+Preview)
 
-### Java Development
-![Java Development](https://via.placeholder.com/800x400/2d3748/ffffff?text=Java+Development+Preview)
-
-### LSP & Completion
-![LSP Features](https://via.placeholder.com/800x400/2d3748/ffffff?text=LSP+%26+Completion+Preview)
-
-> *Note: Add actual screenshots by replacing the placeholder URLs*
 
 ## ✨ Features
 
@@ -55,21 +44,6 @@ A modern, feature-rich Neovim configuration optimized for Java development and f
 
 ### 📋 System Requirements
 
-#### Required Dependencies
-| Component | Version | Purpose |
-|-----------|---------|---------|
-| **Neovim** | ≥ 0.9.0 | Core editor |
-| **Git** | ≥ 2.0 | Version control and plugin management |
-| **GNU Stow** | Latest | Dotfile symlink management |
-
-#### Language Support (Optional but Recommended)
-| Language | Runtime | LSP Server | Purpose |
-|----------|---------|------------|---------|
-| **Java** | JDK ≥ 11 | JDTLS | Java development |
-| **Node.js** | ≥ 16 | TypeScript LS | JavaScript/TypeScript |
-| **Python** | ≥ 3.8 | Pyright | Python development |
-| **Lua** | LuaJIT | Lua LS | Lua scripting |
-
 #### Installation Commands
 
 **Ubuntu/Debian:**
@@ -78,15 +52,6 @@ A modern, feature-rich Neovim configuration optimized for Java development and f
 sudo apt update
 sudo apt install neovim git stow
 
-# Java development
-sudo apt install openjdk-17-jdk maven gradle
-
-# Node.js (optional)
-curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
-sudo apt install nodejs
-
-# Python (optional)
-sudo apt install python3 python3-pip
 ```
 
 **macOS (Homebrew):**
@@ -94,14 +59,6 @@ sudo apt install python3 python3-pip
 # Required
 brew install neovim git stow
 
-# Java development
-brew install openjdk@17 maven gradle
-
-# Node.js (optional)
-brew install node
-
-# Python (optional)
-brew install python
 ```
 
 **Arch Linux:**
@@ -109,14 +66,6 @@ brew install python
 # Required
 sudo pacman -S neovim git stow
 
-# Java development
-sudo pacman -S jdk17-openjdk maven gradle
-
-# Node.js (optional)
-sudo pacman -S nodejs npm
-
-# Python (optional)
-sudo pacman -S python python-pip
 ```
 
 ### 🛠️ Quick Install
@@ -205,47 +154,6 @@ nvim
 - 📁 **File Explorer** - Tree-style navigation with Git integration
 - 🔍 **Fuzzy Finding** - Fast file and content search
 - 📌 **Session Management** - Automatic workspace saving
-
-### ⌨️ Key Features & Shortcuts
-
-#### Essential Navigation
-| Shortcut | Action |
-|----------|--------|
-| `<leader>ff` | Find files |
-| `<leader>fg` | Live grep |
-| `<leader>fb` | Find buffers |
-| `<leader>fh` | Find help |
-| `<C-n>` | Toggle file explorer |
-
-#### Git Integration
-| Shortcut | Action |
-|----------|--------|
-| `<leader>gg` | Open Lazygit |
-| `<leader>gb` | Git blame |
-| `<leader>gd` | Git diff |
-| `<leader>gs` | Git status |
-
-#### LSP & Coding
-| Shortcut | Action |
-|----------|--------|
-| `gd` | Go to definition |
-| `gr` | Find references |
-| `K` | Show documentation |
-| `<leader>ca` | Code actions |
-| `<leader>rn` | Rename symbol |
-
-#### Java Development
-| Category | Shortcut | Action |
-|----------|----------|--------|
-| **Build & Run** | `<leader>JRr` | Run Spring Boot |
-| | `<leader>JRm` | Maven build |
-| | `<leader>JRg` | Gradle build |
-| **Testing** | `<leader>Jtm` | Test method |
-| | `<leader>Jtc` | Test class |
-| | `<leader>Jta` | Test all |
-| **Generation** | `<leader>Jn` | New Java class |
-| | `<leader>JS` | New Spring component |
-| | `<leader>JG` | Generate CRUD |
 
 ### 📚 Learning Resources
 
@@ -525,23 +433,6 @@ Contributions are welcome! Please feel free to:
 - 🔧 **Submit PRs** - Want to contribute code? Awesome!
 - 📖 **Improve Docs** - Help make the documentation better
 
-### Development Setup
-```bash
-# Fork and clone
-git clone https://github.com/YOUR_USERNAME/my-dotfiles.git
-cd my-dotfiles
-
-# Make changes
-# Test your changes
-nvim
-
-# Submit PR
-```
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
 ## 🙏 Acknowledgments
 
 ### Core Technologies
@@ -562,7 +453,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Support
 
-- 📧 **Email**: [Your Email]
 - 🐙 **GitHub Issues**: [Issues](https://github.com/Patrickbpds/my-dotfiles/issues)
 - 💬 **Discussions**: [Discussions](https://github.com/Patrickbpds/my-dotfiles/discussions)
 
