@@ -1,12 +1,18 @@
 # 🚀 Patrick's Neovim Configuration
 
-[![Neovim Version](https://img.shields.io/badge/Neovim-blue.svg)](https://neovim.io/)
 [![GitHub stars](https://img.shields.io/github/stars/Patrickbpds/my-dotfiles.svg)](https://github.com/Patrickbpds/my-dotfiles/stargazers)
+
 A modern, feature-rich Neovim configuration optimized for Java development and full-stack programming. Built with LazyVim, featuring LSP integration, debugging capabilities, and a curated plugin ecosystem for maximum productivity.
 
 ## 🖼️ Preview
+### 🎨 Neovim Configuration Interface
+![Neovim Configuration](assets/nvim-config.png)
 
+### ☕ Development Environment
+![Java Development](assets/java.png)
 
+### 🔧 Neovim Interface
+![Java Features](assets/nvim-java.png)
 
 ## ✨ Features
 
@@ -408,20 +414,6 @@ cp -r ~/.config-backup/nvim ~/.config/
 stow -R .config
 ```
 
-## 🗺️ Roadmap
-
-### 🚀 Planned Features
-- [ ] **Multi-language Support** - Add Go, Rust, and C++ configurations
-- [ ] **Docker Integration** - Built-in Docker development tools
-- [ ] **Cloud Development** - AWS/Azure/GCP integrations
-- [ ] **AI Integration** - GitHub Copilot and AI assistants
-- [ ] **Team Features** - Shared configurations and team workflows
-
-### 🔄 Recent Updates
-- ✅ **Java Excellence** - Complete JDTLS and Spring Boot integration
-- ✅ **Performance Optimization** - Startup time under 100ms
-- ✅ **Learning Resources** - Comprehensive keymaps guide
-- ✅ **Modular Design** - Easy plugin enable/disable
 
 ## 🤝 Contributing
 
