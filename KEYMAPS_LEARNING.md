@@ -163,32 +163,7 @@ p          " Paste
 
 **Sequence:** `<leader>J` + `R` (Run) + command initial
 
-### Testing
-```vim
-<leader>Jtm    " Test current method
-<leader>Jtc    " Test current class
-<leader>Jtl    " Run last test
-<leader>Jtd    " Debug test
-<leader>Jta    " Test all
-```
-
-### Refactoring
-```vim
-<leader>Jrv    " Extract variable
-<leader>Jrc    " Extract constant
-<leader>Jrm    " Extract method
-<leader>Jrr    " Rename symbol
-<leader>JrF    " Organize imports
-<leader>Jrf    " Format + organize imports
-```
-
-### Code Generation
-```vim
-<leader>Jn     " New Java file
-<leader>JS     " New Spring Boot file
-<leader>JG     " Generate CRUD
-<leader>Jcg    " Generate code (toString, hashCode, etc.)
-```
+**Note:** Testing, refactoring, and code generation features are now handled by LazyVim's built-in LSP and testing integrations. Use `<leader>c` for code actions and `<leader>ft` for testing.
 
 ### Logs and Monitoring
 ```vim
@@ -233,13 +208,12 @@ p          " Paste
 
 ### `<leader>J` - Java (Specialized)
 - **JR**: Run/Build operations
-- **Jt**: Testing
-- **Jr**: Refactoring
-- **Jc**: Code generation
 - **JL**: Logs
 - **JB**: Database
 - **JC**: Configuration
 - **JD**: Dependencies
+
+**Note:** Testing and refactoring are handled by LazyVim's built-in LSP features (`<leader>c` for code actions).
 
 ## 🚀 Learning Tips
 
@@ -312,9 +286,9 @@ n N              # Next/previous occurrence
 ### Exercise 3: Java Development
 1. Open a `.java` file
 2. Use `<leader>JRr` to run Spring Boot
-3. Use `<leader>Jtm` to test method
+3. Use `<leader>ft` to run tests (LazyVim built-in)
 4. Use `gd` to go to definition
-5. Use `<leader>Jrr` to rename
+5. Use `<leader>ca` for code actions (LazyVim built-in)
 
 ### Exercise 4: Git Workflow
 1. Make changes to a file

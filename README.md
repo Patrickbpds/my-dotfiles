@@ -35,15 +35,15 @@ A modern, feature-rich Neovim configuration optimized for Java development and f
 - **JDTLS Integration** - Full Java language server with Eclipse quality
 - **Spring Boot Tools** - Dedicated support for Spring Boot development
 - **Build Systems** - Maven and Gradle integration with one-click execution
-- **Testing Framework** - JUnit integration for unit and integration tests
-- **Code Generation** - Automatic CRUD operations and boilerplate generation
+- **Testing Framework** - LazyVim's built-in testing integration for JUnit
+- **Code Actions** - LazyVim's LSP-powered refactoring and quick fixes
 - **Database Tools** - Flyway migration support and database integration
 
 ### 🔧 Development Tools
 - **LSP Integration** - Intelligent code completion and diagnostics
 - **DAP Debugging** - Integrated debugging with breakpoints and variable inspection
 - **Git Integration** - Lazygit, inline blame, and diff viewing
-- **Code Formatting** - Automatic formatting on save
+- **Code Formatting** - Prettier integration with automatic formatting on save
 - **Snippet Support** - Code snippets for faster development
 
 ## 🚀 Installation
@@ -141,11 +141,11 @@ nvim
 - ✅ **Code Actions** - Quick fixes and refactoring tools
 
 #### Java Excellence
-- ☕ **JDTLS Server** - Full Eclipse-quality Java support
+- ☕ **JDTLS Server** - Full Eclipse-quality Java support with LazyVim integration
 - 🚀 **Spring Boot** - Dedicated Spring Boot development tools
 - 🔨 **Build Integration** - Maven/Gradle with one-click execution
-- 🧪 **Testing** - JUnit integration for seamless testing
-- ⚙️ **Code Generation** - Automatic CRUD and boilerplate generation
+- 🧪 **Testing** - LazyVim's built-in testing framework for seamless JUnit integration
+- ⚙️ **Code Actions** - LazyVim's LSP-powered refactoring and code actions
 - 🗄️ **Database Tools** - Flyway migrations and database integration
 
 #### Debugging & Testing
