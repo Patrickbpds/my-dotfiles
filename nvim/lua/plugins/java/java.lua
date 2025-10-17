@@ -86,30 +86,6 @@ M.flyway_migrate = migrations.flyway_migrate
 M.create_migration = migrations.create_migration
 
 -- ============================================================================
--- REFACTORING FUNCTIONS (LSP-based)
--- ============================================================================
-M.refactor = {
-  extract_variable = function()
-    vim.lsp.buf.code_action({
-      context = { diagnostics = {}, only = { "refactor.extract.variable" } },
-      apply = true,
-    })
-  end,
-  extract_constant = function()
-    vim.lsp.buf.code_action({
-      context = { diagnostics = {}, only = { "refactor.extract.constant" } },
-      apply = true,
-    })
-  end,
-  extract_method = function()
-    vim.lsp.buf.code_action({
-      context = { diagnostics = {}, only = { "refactor.extract.method" } },
-      apply = false,
-    })
-  end,
-}
-
--- ============================================================================
 -- FILE GENERATION FUNCTIONS
 -- ============================================================================
 M.file_generator = function()
