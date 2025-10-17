@@ -73,39 +73,6 @@ local function setup_lsp_java_keymaps(buf)
 
   vim.keymap.set("n", "<leader>Jrr", "<Cmd>lua vim.lsp.buf.rename()<CR>", { buffer = buf, desc = "Rename Symbol" })
 
-  -- ========== TESTING ==========
-  vim.keymap.set(
-    "n",
-    "<leader>Jtm",
-    "<Cmd>lua require('plugins.java.java').test.run_current_method()<CR>",
-    { buffer = buf, desc = "Test Method" }
-  )
-
-  vim.keymap.set(
-    "n",
-    "<leader>Jtc",
-    "<Cmd>lua require('plugins.java.java').test.run_current_class()<CR>",
-    { buffer = buf, desc = "Test Class" }
-  )
-
-  vim.keymap.set("n", "<leader>Jtl", function()
-    require("plugins.java.java").test.run_last()
-  end, { buffer = buf, desc = "Run Last Test" })
-
-  vim.keymap.set("n", "<leader>Jtd", function()
-    require("plugins.java.java").test.debug_current_method()
-  end, { buffer = buf, desc = "Debug Test Method" })
-
-  vim.keymap.set("n", "<leader>Jta", function()
-    local utils = require("plugins.java.java-utils")
-    local build_tool = utils.get_build_tool()
-    if build_tool == "maven" then
-      require("plugins.java.build-run").maven_test()
-    elseif build_tool == "gradle" then
-      require("plugins.java.build-run").gradle_test()
-    end
-  end, { buffer = buf, desc = "Test All" })
-
   -- ========== CODE GENERATION ==========
   vim.keymap.set("n", "<leader>Jcg", function()
     vim.lsp.buf.code_action({
@@ -136,13 +103,6 @@ local function setup_which_key()
       { "<leader>Jrr", desc = "Rename Symbol", buffer = true },
       { "<leader>JrF", desc = "Organize Imports", buffer = true },
       { "<leader>Jrf", desc = "Format + Organize Imports", buffer = true },
-
-      { "<leader>Jt", group = "Tests", buffer = true },
-      { "<leader>Jtm", desc = "Test Method", buffer = true },
-      { "<leader>Jtc", desc = "Test Class", buffer = true },
-      { "<leader>Jtl", desc = "Run Last Test", buffer = true },
-      { "<leader>Jtd", desc = "Debug Test", buffer = true },
-      { "<leader>Jta", desc = "Test All", buffer = true },
 
       { "<leader>Jc", group = "Code Generation", buffer = true },
       { "<leader>Jcg", desc = "Generate Code", buffer = true },

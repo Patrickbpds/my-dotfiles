@@ -87,30 +87,8 @@ M.maven_package = maven_package
 M.gradle_build = gradle_build
 M.gradle_test = gradle_test
 M.gradle_clean = gradle_clean
--- ============================================================================
--- Test Functions (using neotest)
--- ============================================================================
-local function test_current_method()
-  require("neotest").run.run({ strategy = "dap" })
-end
-
-local function test_current_class()
-  require("neotest").run.run(vim.fn.expand("%"))
-end
-
-local function run_last_test()
-  require("neotest").run.run_last()
-end
-
-local function debug_current_test()
-  require("neotest").run.run({ strategy = "dap" })
-end
 
 M.spring_boot_run = spring_boot_run
 M.spring_boot_run_profile = spring_boot_run_with_profile
-M.test_current_method = test_current_method
-M.test_current_class = test_current_class
-M.run_last_test = run_last_test
-M.debug_current_test = debug_current_test
 
 return M
