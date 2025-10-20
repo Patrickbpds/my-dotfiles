@@ -4,6 +4,15 @@ local M = {}
 --  Only utilities that LazyVim does NOT provide
 -- ============================================================================
 
+-- Safe File Reader
+local function read_file_lines(filepath, max_lines)
+  max_lines = max_lines or 1000
+
+  local success, content = pcall(vim.fn.readfile, filepath, "", max_lines)
+
+  return success and content or {}
+end
+
 -- Detect package from current file
 function M.detect_package()
   local current_file = vim.fn.expand("%:p")
@@ -15,8 +24,8 @@ function M.detect_package()
 
   -- Attempt to read file package
   if current_file:match("%.java$") then
-    local lines = vim.fn.readfile(current_file, "", 100)
-    for _, line in ipairs(lines) do
+    local file_content = read_file_lines(current_file, 100)
+    for _, line in ipairs(file_content) do
       local package_match = line:match("^package%s+([%w%.]+)%s*;")
       if package_match then
         return package_match
