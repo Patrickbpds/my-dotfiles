@@ -32,7 +32,8 @@ end
 M.switch_profile = profiles.switch_profile
 M.edit_properties = profiles.edit_properties
 M.edit_profile_properties = profiles.edit_profile_properties
-M.generate_properties = profiles.generate_properties
+M.create_new_profile = profiles.create_new_profile
+M.show_profile_info = profiles.show_profile_info
 
 -- Migrations
 M.flyway_migrate = function()
