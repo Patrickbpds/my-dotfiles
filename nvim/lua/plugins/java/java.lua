@@ -2,7 +2,6 @@ local M = {}
 
 local utils = require("plugins.java.java-utils")
 local build_run = require("plugins.java.build-run")
-local logs = require("plugins.java.logs")
 local dependency = require("plugins.java.dependency-management")
 local profiles = require("plugins.java.profiles-management")
 local migrations = require("plugins.java.migrations")
@@ -14,10 +13,6 @@ end
 M.spring_boot_run_profile = build_run.spring_boot_run_profile
 M.maven_build = build_run.maven_build
 M.gradle_build = build_run.gradle_build
-
--- Logs
-M.view_logs = logs.view_logs
-M.tail_logs = logs.tail_logs
 
 -- Dependencies
 M.add_dependency = function()

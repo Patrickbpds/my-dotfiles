@@ -7,10 +7,6 @@ local function setup_custom_java_keymaps()
   vim.keymap.set("n", "<leader>JRm", java.maven_build, { desc = "Maven Build" })
   vim.keymap.set("n", "<leader>JRg", java.gradle_build, { desc = "Gradle Build" })
 
-  -- ========== LOGS ==========
-  vim.keymap.set("n", "<leader>JLv", java.view_logs, { desc = "View Logs" })
-  vim.keymap.set("n", "<leader>JLt", java.tail_logs, { desc = "Tail Logs" })
-
   -- ========== GERADORES ==========
   vim.keymap.set("n", "<leader>Jn", java.file_generator, { desc = "New Java File" })
   vim.keymap.set("n", "<leader>JS", java.spring_boot_generator, { desc = "New Spring File" })
@@ -38,7 +34,6 @@ local function setup_custom_java_keymaps()
     wk.add({
       { "<leader>J", group = "Java" },
       { "<leader>JR", group = "Run/Build" },
-      { "<leader>JL", group = "Logs" },
       { "<leader>JB", group = "Database" },
       { "<leader>JC", group = "Config" },
       { "<leader>JD", group = "Dependencies" },
