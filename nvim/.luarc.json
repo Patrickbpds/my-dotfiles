@@ -1,0 +1,10 @@
+{
+  "diagnostics": {
+    "globals": ["vim", "LazyVim"]
+  },
+  "workspace": {
+    "library": {
+      "vim": true
+    }
+  }
+}

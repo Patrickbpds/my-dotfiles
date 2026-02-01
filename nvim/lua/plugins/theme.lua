@@ -252,7 +252,7 @@ local function setup_lualine(new_colors)
         return msg
       end
       for _, client in ipairs(clients) do
-        local filetypes = client.config.filetypes
+        local filetypes = client.config and client.config.filetypes
         if filetypes and vim.fn.index(filetypes, buf_ft) ~= -1 then
           return client.name
         end
@@ -483,13 +483,17 @@ return {
 
       -- Start timer after a small delay to ensure everything is loaded
       vim.defer_fn(function()
-        timer:start(timer_interval_ms, timer_interval_ms, vim.schedule_wrap(check_and_reload_heimdall))
+        if timer and timer.start then
+          timer:start(timer_interval_ms, timer_interval_ms, vim.schedule_wrap(check_and_reload_heimdall))
+        end
       end, 100)
 
       vim.api.nvim_create_autocmd("VimLeavePre", {
         callback = function()
-          timer:stop()
-          timer:close()
+          if timer then
+            timer:stop()
+            timer:close()
+          end
         end,
       })
     end,
