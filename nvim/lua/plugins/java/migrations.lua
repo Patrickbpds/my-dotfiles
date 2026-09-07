@@ -4,14 +4,32 @@ local M = {}
 -- 🗄️ DATABASE FUNCTIONS
 -- ============================================================================
 
-local function run_flyway_migrate(utils)
-  local build_tool = utils.get_build_tool()
-  if build_tool == "maven" then
-    vim.cmd("botright split | terminal mvn flyway:migrate")
-  elseif build_tool == "gradle" then
-    vim.cmd("botright split | terminal ./gradlew flywayMigrate")
-  end
+local function utils()
+  return require("plugins.java.java-utils")
+end
+
+local function build_command(tool)
+  return utils().get_build_command(tool)
+end
+
+local function run_in_terminal(cmd)
+  local root = utils().get_project_root()
+  local old_cwd = vim.fn.getcwd()
+  vim.fn.chdir(root)
+  vim.cmd("botright split | terminal " .. cmd)
+  vim.fn.chdir(old_cwd)
   vim.cmd("startinsert")
+end
+
+local function run_flyway_migrate()
+  local build_tool = utils().get_build_tool()
+  if build_tool == "maven" then
+    run_in_terminal(build_command("maven") .. " flyway:migrate")
+  elseif build_tool == "gradle" then
+    run_in_terminal(build_command("gradle") .. " flywayMigrate")
+  else
+    vim.notify("No build tool detected", vim.log.levels.ERROR)
+  end
 end
 
 local function create_flyway_migration()
@@ -20,7 +38,8 @@ local function create_flyway_migration()
       return
     end
 
-    local migration_dir = vim.fn.getcwd() .. "/src/main/resources/db/migration/"
+    local root = utils().get_project_root()
+    local migration_dir = root .. "/src/main/resources/db/migration/"
 
     vim.fn.mkdir(migration_dir, "p")
 

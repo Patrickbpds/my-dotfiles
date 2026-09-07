@@ -5,9 +5,10 @@ A comprehensive Neovim setup optimized for Java and Spring Boot development, bui
 ## ✨ Features
 
 ### Java & Spring Boot Support
-- **Enhanced JDTLS Integration**: Complete Java Language Server with nvim-java for automatic plugin management
-- **Spring Boot Tools**: Integrated Spring Boot development with nvim-java's spring-boot-tools
-- **Code Completion**: Intelligent completion for Java, Spring annotations, and dependencies
+- **Enhanced JDTLS Integration**: Complete Java Language Server via LazyVim's `lang.java` extra (jdtls with Lombok support)
+- **Custom Java Toolbox**: Build/run, profiles, migrations, dependency management and generators under `<leader>j`
+- **Spring Boot Tools**: Dedicated Spring tooling and profile management with templates
+- **Code Completion**: Intelligent completion for Java and Spring annotations
 - **Refactoring**: Extract methods, variables, constants with JDTLS
 - **Code Actions**: Quick fixes, imports organization, and more
 - **Session Management**: Automatic session saving per Git repository (inspired by brianrbrenner)
@@ -65,18 +66,42 @@ This configuration is already set up. To start using it:
 <leader>cR  " Rename symbol
 ```
 
-### Java-Specific (JDTLS + nvim-java)
+### Java-Specific (Custom `<leader>j` suite)
 ```vim
-<leader>Jo  " Organize imports
-<leader>Jv  " Extract variable
-<leader>JC  " Extract constant
-<leader>Jt  " Test nearest method
-<leader>JT  " Test class
-<leader>Ju  " Update project config
-<leader>Jr  " Run Spring Boot (via nvim-java)
-<leader>Jc  " Create class (via nvim-java)
-<leader>Ji  " Create interface (via nvim-java)
-<leader>Je  " Create enum (via nvim-java)
+<leader>jrs   " Run Spring Boot
+<leader>jrp   " Run with profile
+<leader>jrk   " Stop app
+<leader>jrm   " Maven build
+<leader>jrg   " Gradle build
+<leader>jmt   " Maven test
+<leader>jmv   " Maven verify
+<leader>jmp   " Maven package
+<leader>jwt   " Gradle test
+<leader>jwc   " Gradle clean build
+<leader>jn    " New Java file (Class/Interface/Enum/Record)
+<leader>js    " New Spring Boot file (Controller/Service/Repository/Entity/DTO)
+<leader>jg    " Generate full CRUD
+<leader>jbr   " Flyway migrate
+<leader>jbn   " New migration
+<leader>jps   " Switch Spring profile
+<leader>jpn   " New profile
+<leader>jpe   " Edit application config
+<leader>jpp   " Edit profile config
+<leader>jpi   " Profile info
+<leader>jda   " Add dependency (auto-insert into pom/build.gradle)
+<leader>jdt   " Dependency tree
+<leader>jdu   " Update dependencies
+<leader>jdv   " Check vulnerabilities
+```
+
+### Java LSP (JDTLS via LazyVim)
+```vim
+<leader>co    " Organize imports
+<leader>cxv   " Extract variable
+<leader>cxc   " Extract constant
+<leader>cxm   " Extract method (visual)
+<leader>tt    " Run all tests in class
+<leader>tr    " Run nearest test
 ```
 
 ### Session Management
@@ -112,18 +137,18 @@ This configuration is already set up. To start using it:
 - `lua/config/lazy.lua` - Plugin management
 - `lua/config/options.lua` - Neovim options
 - `lua/config/keymaps.lua` - General keybindings
-- `lua/config/autocmds.lua` - Auto commands
 
 ### Java/JDTLS Configuration
-- `lua/config/jdtls.lua` - Complete JDTLS setup
 - `lua/lang_servers/intellij-java-google-style.xml` - Google Java formatting
+- `lua/plugins/java/` - Custom Java toolbox (build/run, profiles, migrations, dependencies, templates)
+- `lua/plugins/java/templates/` - File, Spring Boot and CRUD generators
+- `lua/plugins/java/keymaps-java.lua` - Keymaps under `<leader>j`
 
 ### Plugins
 - `lua/plugins/` - All plugin configurations
-- `lua/plugins/java.lua` - nvim-java integration (replaces manual JDTLS)
+- `lua/plugins/java/` - Custom Java modules (build-run, profiles, migrations, dependencies, templates)
 - `lua/plugins/session.lua` - Auto-session management
-- `lua/plugins/dap.lua` - Debug adapter configuration
-- `lua/plugins/lsp.lua` - LSP server management
+- `lua/plugins/lsp.lua` - LSP server management (jdtls via LazyVim's `lang.java` extra)
 
 ### Theme & UI
 - `lua/plugins/theme.lua` - Catppuccin + Heimdall colors
@@ -131,17 +156,18 @@ This configuration is already set up. To start using it:
 
 ## 🆕 Recent Updates
 
-### v2.0 - Enhanced Java/Spring Boot Integration
-- **Migrated to nvim-java**: Replaced manual JDTLS setup with nvim-java for automatic plugin management
-- **Enhanced Spring Boot Support**: Integrated nvim-java's spring-boot-tools for better Spring development
-- **Session Management**: Added auto-session plugin for per-repository session persistence
-- **Improved Configuration**: Streamlined plugin loading and reduced conflicts
+### v3.0 - Custom Java Toolbox
+- **Wrapper-aware builds**: prefers `./mvnw` / `./gradlew` when present
+- **Expanded build commands**: Maven test/verify/package and Gradle test/clean build under `<leader>jm*` / `<leader>jw*`
+- **Stop app**: `<leader>jrk` sends SIGINT and closes the app terminal
+- **Dependency management**: `add_dependency` resolves the latest version from Maven Central and auto-inserts into `pom.xml` / `build.gradle`
+- **CRUD generator**: automatic DTO<->Entity mapping and optional Lombok
+- **LSP via LazyVim**: JDTLS + Java debugging/testing provided by LazyVim's `lang.java` extra
 
 ### Key Changes
-- Disabled manual JDTLS autocmd (now handled by nvim-java)
-- Disabled separate springboot-nvim plugin (functionality in nvim-java)
-- Added session management with Git branch awareness
-- Enhanced key mappings for Spring Boot operations
+- Removed legacy manual JDTLS setup (now handled by the LazyVim Java extra)
+- Reorganized Java keymaps under `<leader>j` with dedicated which-key groups (Run, Maven, Gradle, Database, Profile, Dependencies)
+- Updated documentation to match the current modules
 
 ## 🏗️ Architecture
 

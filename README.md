@@ -117,7 +117,7 @@ nvim
 nvim
 
 # Install LSP servers (inside Neovim)
-:MasonInstall java-language-server jdtls typescript-language-server
+:MasonInstall jdtls typescript-language-server
 
 # Verify installation
 :checkhealth
@@ -214,34 +214,26 @@ my-dotfiles/
 │       │   └── 📄 lazyvim.json      # ⚙️ LazyVim config
 │       ├── 📁 lang_servers/         # 🗣️ Language server configs
 │       │   └── 📄 intellij-java-google-style.xml
-│       └── 📁 plugins/              # 🔌 Plugin configurations
+│       ├── 📁 plugins/              # 🔌 Plugin configurations
 │           ├── 📁 java/             # ☕ Java-specific plugins
 │           │   ├── 📄 build-run.lua
 │           │   ├── 📄 dependency-management.lua
 │           │   ├── 📄 java.lua
 │           │   ├── 📄 java-utils.lua
 │           │   ├── 📄 keymaps-java.lua
-│           │   ├── 📄 logs.lua
 │           │   ├── 📄 migrations.lua
 │           │   ├── 📄 profiles-management.lua
 │           │   └── 📁 templates/
 │           │       ├── 📄 crud-files.lua
 │           │       ├── 📄 java-files.lua
 │           │       └── 📄 springboot-files.lua
-│           ├── 📄 autopairs.lua      # 🔄 Auto pairs
 │           ├── 📄 better-ts-errors.lua # 🚨 Better TS errors
-│           ├── 📄 cmp.lua            # 💡 Completion
-│           ├── 📄 comment.lua        # 💬 Commenting
-│           ├── 📄 dap.lua            # 🐛 Debug adapter
 │           ├── 📄 git.lua            # 🐙 Git integration
 │           ├── 📄 grapple.lua        # 🪝 Fast navigation
-│           ├── 📄 harpoon.lua        # ⚓ File marking
 │           ├── 📄 lint.lua           # 🔍 Linting
 │           ├── 📄 lsp.lua            # 🗣️ Language server
-│           ├── 📄 lualine.lua        # 📊 Status line
 │           ├── 📄 neo-tree.lua       # 📁 File explorer
 │           ├── 📄 session.lua        # 💾 Session management
-│           ├── 📄 snippets.lua       # 📝 Code snippets
 │           ├── 📄 theme.lua          # 🎨 Color scheme
 │           ├── 📄 ui.lua             # 🖼️ UI enhancements
 │           ├── 📄 wakatime.lua       # ⏱️ Time tracking

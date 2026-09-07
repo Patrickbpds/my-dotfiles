@@ -2,6 +2,11 @@ local M = {}
 -- ============================================================================
 -- Java File Templates
 -- ============================================================================
+
+local function utils()
+  return require("plugins.java.java-utils")
+end
+
 local java_templates = {}
 
 java_templates.class = [[
@@ -47,9 +52,9 @@ public record %s() {
 -- ============================================================================
 -- Generate Java File
 -- ============================================================================
-local function generate_java_file(file_type, name, utils)
-  local package_name = utils.detect_package()
-  local project_root = vim.fn.getcwd()
+local function generate_java_file(file_type, name)
+  local package_name = utils().detect_package()
+  local project_root = utils().get_project_root()
   local package_path = package_name:gsub("%.", "/")
   local current_dir = vim.fn.expand("%:p:h")
   local is_test = current_dir:find(project_root .. "/src/test/java", 1, true) == 1
@@ -57,18 +62,16 @@ local function generate_java_file(file_type, name, utils)
   local base_dir = is_test and "/src/test/java/" or "/src/main/java/"
   local dir = project_root .. base_dir .. package_path
 
-  vim.notify("Debug: name=" .. name .. ", package=" .. package_name, vim.log.levels.INFO)
-
   local template = java_templates[file_type]
   local content = string.format(template, package_name, name)
 
-  utils.write_java_file(dir, name, content)
+  utils().write_java_file(dir, name, content)
 end
 
 -- ============================================================================
 -- Java File Generator Menu
 -- ============================================================================
-function M.file_generator(utils)
+function M.file_generator()
   local options = {
     "Class",
     "Abstract Class",
@@ -95,7 +98,7 @@ function M.file_generator(utils)
         ["Record"] = "record",
       }
 
-      generate_java_file(file_type_map[choice], name, utils)
+      generate_java_file(file_type_map[choice], name)
     end)
   end)
 end

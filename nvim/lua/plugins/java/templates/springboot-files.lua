@@ -2,6 +2,11 @@ local M = {}
 -- ============================================================================
 -- Spring Boot Templates
 -- ============================================================================
+
+local function utils()
+  return require("plugins.java.java-utils")
+end
+
 local spring_templates = {}
 
 spring_templates.controller = [[
@@ -19,11 +24,45 @@ public class %s {
 spring_templates.service = [[
 package %s;
 
+import %s.model.%s;
+import %s.repository.%sRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 public class %s {
 
+    private final %sRepository repository;
+
+    public %s(%sRepository repository) {
+        this.repository = repository;
+    }
+
+    @Transactional(readOnly = true)
+    public List<%s> findAll() {
+        return repository.findAll();
+    }
+
+    @Transactional(readOnly = true)
+    public %s findById(Long id) {
+        return repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("%s not found with id: " + id));
+    }
+
+    @Transactional
+    public %s save(%s entity) {
+        return repository.save(entity);
+    }
+
+    @Transactional
+    public void delete(Long id) {
+        if (!repository.existsById(id)) {
+            throw new RuntimeException("%s not found with id: " + id);
+        }
+        repository.deleteById(id);
+    }
 }
 ]]
 
@@ -115,8 +154,8 @@ public class %s {
 -- ============================================================================
 -- Generate Spring Boot File
 -- ============================================================================
-local function generate_spring_template(kind, name, utils)
-  local package_name = utils.detect_package()
+local function generate_spring_template(kind, name)
+  local package_name = utils().detect_package()
   local endpoint = name:lower()
   local entity = name
   local class_name
@@ -127,7 +166,24 @@ local function generate_spring_template(kind, name, utils)
     content = string.format(spring_templates.controller, package_name, endpoint, class_name)
   elseif kind == "Service" then
     class_name = name .. "Service"
-    content = string.format(spring_templates.service, package_name, class_name)
+    content = string.format(
+      spring_templates.service,
+      package_name, -- package
+      package_name,
+      name,
+      package_name,
+      name,
+      class_name,
+      name,
+      class_name,
+      name,
+      name,
+      name,
+      name,
+      name,
+      name,
+      name
+    )
   elseif kind == "Repository" then
     class_name = name .. "Repository"
     content = string.format(spring_templates.repository, package_name, package_name, entity, class_name, entity)
@@ -158,13 +214,13 @@ local function generate_spring_template(kind, name, utils)
   end
 
   local dir = vim.fn.expand("%:p:h")
-  utils.write_java_file(dir, class_name, content)
+  utils().write_java_file(dir, class_name, content)
 end
 
 -- ============================================================================
 -- Spring Boot Generator Menu
 -- ============================================================================
-function M.spring_boot_generator(utils)
+function M.spring_boot_generator()
   local options = {
     "Controller",
     "Service",
@@ -187,7 +243,7 @@ function M.spring_boot_generator(utils)
       if not name or name == "" then
         return
       end
-      generate_spring_template(choice, name, utils)
+      generate_spring_template(choice, name)
     end)
   end)
 end

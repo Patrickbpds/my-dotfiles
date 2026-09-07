@@ -1,6 +1,5 @@
 {
   "extras": [
-    "lazyvim.plugins.extras.ai.copilot",
     "lazyvim.plugins.extras.editor.neo-tree"
   ],
   "install_version": 8,

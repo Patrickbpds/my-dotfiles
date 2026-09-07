@@ -152,47 +152,79 @@ p          " Paste
 
 ## 🔧 Java Development (Specialized)
 
-### Build and Execution
+All Java keymaps live under **`<leader>j`** and are loaded automatically when you open a `.java` file.
+
+### Run & Build
 ```vim
-<leader>JRr    " Run Spring Boot
-<leader>JRm    " Maven build
-<leader>JRg    " Gradle build
-<leader>JRp    " Run with profile
-<leader>JRs    " Stop application
+<leader>jrs    " Run Spring Boot (mvn spring-boot:run / ./gradlew bootRun)
+<leader>jrp    " Run Spring Boot with profile (dev/test/prod/local)
+<leader>jrk    " Stop the running app/build (sends SIGINT and closes the terminal)
+<leader>jrm    " Maven build (clean install -DskipTests)
+<leader>jrg    " Gradle build (./gradlew build)
 ```
 
-**Sequence:** `<leader>J` + `R` (Run) + command initial
+**Always prefers the project wrapper** (`./mvnw`, `./gradlew`) when present.
 
-**Note:** Testing, refactoring, and code generation features are now handled by LazyVim's built-in LSP and testing integrations. Use `<leader>c` for code actions and `<leader>ft` for testing.
-
-### Logs and Monitoring
+### Maven
 ```vim
-<leader>JLv    " View logs
-<leader>JLt    " Tail logs
+<leader>jmt    " Maven test
+<leader>jmv    " Maven verify
+<leader>jmp    " Maven package
 ```
 
-### Database
+### Gradle
 ```vim
-<leader>JBm    " Flyway migrate
-<leader>JBn    " New migration
+<leader>jwt    " Gradle test
+<leader>jwc    " Gradle clean build
 ```
 
-### Configurations
+### Generators
 ```vim
-<leader>JCp    " Switch profile
-<leader>JCe    " Edit properties
-<leader>JCP    " Edit profile properties
-<leader>JCg    " Generate properties template
-<leader>JCu    " Update JDTLS config
+<leader>jn    " New Java file (Class/Abstract/Interface/Enum/Record)
+<leader>js    " New Spring Boot file (Controller/Service/Repository/Entity/DTO/Mapper/Config/Exception)
+<leader>jg    " Generate full CRUD (Entity/Repository/Service/Controller/DTOs)
+```
+
+**Note:** The CRUD generator asks whether you use Lombok and maps DTO<->Entity fields automatically.
+
+### Database (Flyway)
+```vim
+<leader>jbr    " Run Flyway migrate
+<leader>jbn    " New migration (auto-numbered V{n}__description.sql)
+```
+
+### Profiles (Spring Boot)
+```vim
+<leader>jps    " Switch active profile
+<leader>jpn    " Create new profile (properties/yml/yaml)
+<leader>jpe    " Edit application.properties/yml
+<leader>jpp    " Edit profile-specific config
+<leader>jpi    " Show active + available profiles
 ```
 
 ### Dependencies
 ```vim
-<leader>JDa    " Add dependency
-<leader>JDu    " Update dependencies
-<leader>JDv    " Check vulnerabilities
-<leader>JDd    " Show dependency tree
+<leader>jda    " Add dependency (auto-inserts into pom.xml / build.gradle, latest version from Maven Central)
+<leader>jdt    " Show dependency tree
+<leader>jdu    " Show available dependency updates
+<leader>jdv    " Check vulnerabilities (OWASP dependency-check)
 ```
+
+### LSP / Tests (via LazyVim's Java extra)
+LSP-driven operations are handled by JDTLS through the standard LazyVim keys:
+```vim
+<leader>cxv   " Extract variable
+<leader>cxc   " Extract constant
+<leader>cxm   " Extract method (visual mode)
+<leader>co    " Organize imports
+gd            " Go to definition
+K             " Show hover
+<leader>tt    " Run all tests in class (jdtls)
+<leader>tr    " Run nearest test (jdtls)
+```
+
+**Mnemonic:** `<leader>j` then `r` (Run), `m` (Maven), `w` (Gradle wrapper), `b` (Database),
+`p` (Profile), `d` (Dependencies), plus `n`/`s`/`g` for generators.
 
 ## 🎯 Keymap Groups by Prefix
 
@@ -207,13 +239,16 @@ p          " Paste
 - **h**: Help/documentation
 
 ### `<leader>J` - Java (Specialized)
-- **JR**: Run/Build operations
-- **JL**: Logs
-- **JB**: Database
-- **JC**: Configuration
-- **JD**: Dependencies
+- **jr**: Run/Build operations
+- **jm**: Maven (test, verify, package)
+- **jw**: Gradle wrapper (test, clean build)
+- **jb**: Database (Flyway)
+- **jp**: Profiles
+- **jd**: Dependencies
+- **jn / js / jg**: Generators (Java, Spring, CRUD)
 
-**Note:** Testing and refactoring are handled by LazyVim's built-in LSP features (`<leader>c` for code actions).
+**Note:** Testing, refactoring, and LSP actions are handled by JDTLS via LazyVim
+keys (`<leader>c*` for code actions, `<leader>t*` for tests).
 
 ## 🚀 Learning Tips
 
@@ -285,8 +320,8 @@ n N              # Next/previous occurrence
 
 ### Exercise 3: Java Development
 1. Open a `.java` file
-2. Use `<leader>JRr` to run Spring Boot
-3. Use `<leader>ft` to run tests (LazyVim built-in)
+2. Use `<leader>jrs` to run Spring Boot
+3. Use `<leader>tt` to run tests (jdtls)
 4. Use `gd` to go to definition
 5. Use `<leader>ca` for code actions (LazyVim built-in)
 

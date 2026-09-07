@@ -1,32 +1,27 @@
 local M = {}
 
-local utils = require("plugins.java.java-utils")
 local build_run = require("plugins.java.build-run")
 local dependency = require("plugins.java.dependency-management")
 local profiles = require("plugins.java.profiles-management")
 local migrations = require("plugins.java.migrations")
 
 -- Build/Run
-M.spring_boot_run = function()
-  build_run.spring_boot_run(utils)
-end
+M.spring_boot_run = build_run.spring_boot_run
 M.spring_boot_run_profile = build_run.spring_boot_run_profile
 M.maven_build = build_run.maven_build
+M.maven_test = build_run.maven_test
+M.maven_verify = build_run.maven_verify
+M.maven_package = build_run.maven_package
 M.gradle_build = build_run.gradle_build
+M.gradle_test = build_run.gradle_test
+M.gradle_clean = build_run.gradle_clean
+M.stop_app = build_run.stop_app
 
 -- Dependencies
-M.add_dependency = function()
-  dependency.add_dependency(utils)
-end
-M.show_dependency_tree = function()
-  dependency.show_dependency_tree(utils)
-end
-M.check_vulnerabilities = function()
-  dependency.check_vulnerabilities(utils)
-end
-M.update_dependencies = function()
-  dependency.update_dependencies(utils)
-end
+M.add_dependency = dependency.add_dependency
+M.show_dependency_tree = dependency.show_dependency_tree
+M.check_vulnerabilities = dependency.check_vulnerabilities
+M.update_dependencies = dependency.update_dependencies
 
 -- Profiles
 M.switch_profile = profiles.switch_profile
@@ -36,18 +31,16 @@ M.create_new_profile = profiles.create_new_profile
 M.show_profile_info = profiles.show_profile_info
 
 -- Migrations
-M.flyway_migrate = function()
-  migrations.flyway_migrate(utils)
-end
+M.flyway_migrate = migrations.flyway_migrate
 M.create_migration = migrations.create_migration
 
 -- Generators
 M.file_generator = function()
-  require("plugins.java.templates.java-files").file_generator(utils)
+  require("plugins.java.templates.java-files").file_generator()
 end
 
 M.spring_boot_generator = function()
-  require("plugins.java.templates.springboot-files").spring_boot_generator(utils)
+  require("plugins.java.templates.springboot-files").spring_boot_generator()
 end
 
 M.generate_crud = function()

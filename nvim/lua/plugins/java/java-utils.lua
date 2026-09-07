@@ -16,7 +16,7 @@ end
 -- Detect package from current file
 function M.detect_package()
   local current_file = vim.fn.expand("%:p")
-  local project_root = vim.fn.getcwd()
+  local project_root = M.get_project_root()
 
   if not current_file or current_file == "" then
     return "com.example"
@@ -52,12 +52,37 @@ function M.detect_package()
   return get_package_from_path(main_java) or get_package_from_path(test_java) or "com.example"
 end
 
+-- Detect project root from common build markers
+function M.get_project_root()
+  local markers =
+    { "pom.xml", "mvnw", "build.gradle", "build.gradle.kts", "gradlew", "settings.gradle", "settings.gradle.kts" }
+  local root = vim.fs.root(vim.fn.getcwd(), markers)
+  return root or vim.fn.getcwd()
+end
+
 -- Detect build tool
 function M.get_build_tool()
-  local cwd = vim.fn.getcwd()
-  if vim.fn.filereadable(cwd .. "/pom.xml") == 1 then
+  local root = M.get_project_root()
+  if vim.fn.filereadable(root .. "/pom.xml") == 1 then
     return "maven"
-  elseif vim.fn.filereadable(cwd .. "/build.gradle") == 1 or vim.fn.filereadable(cwd .. "/build.gradle.kts") == 1 then
+  elseif vim.fn.filereadable(root .. "/build.gradle") == 1 or vim.fn.filereadable(root .. "/build.gradle.kts") == 1 then
+    return "gradle"
+  end
+  return nil
+end
+
+-- Prefer the project's Maven/Gradle wrapper when available
+function M.get_build_command(build_tool)
+  local root = M.get_project_root()
+  if build_tool == "maven" then
+    if vim.fn.filereadable(root .. "/mvnw") == 1 then
+      return root .. "/mvnw"
+    end
+    return "mvn"
+  elseif build_tool == "gradle" then
+    if vim.fn.filereadable(root .. "/gradlew") == 1 then
+      return root .. "/gradlew"
+    end
     return "gradle"
   end
   return nil
