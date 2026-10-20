@@ -1,32 +1,25 @@
--- ============================================================================
--- 🥇 CRUD GENERATOR
--- ============================================================================
-
 local M = {}
 
 local function utils()
   return require("plugins.java.java-utils")
 end
 
-local function capitalize(str)
-  return str:sub(1, 1):upper() .. str:sub(2)
-end
-
--- Parse "name:Type,name2:Type2" into a field list
 local function parse_fields(input)
   local fields = {}
   if input and input ~= "" then
     for field_def in input:gmatch("[^,]+") do
       local field_name, field_type = field_def:match("([^:]+):([^:]+)")
       if field_name and field_type then
-        table.insert(fields, { name = field_name:match("^%s*(.-)%s*$"), type = field_type:match("^%s*(.-)%s*$") })
+        table.insert(fields, {
+          name = vim.trim(field_name),
+          type = vim.trim(field_type),
+        })
       end
     end
   end
   return fields
 end
 
--- Build the private field declarations
 local function fields_block(fields)
   local lines = {}
   for _, field in ipairs(fields) do
@@ -35,11 +28,10 @@ local function fields_block(fields)
   return table.concat(lines, "\n")
 end
 
--- Build getters/setters for the plain-Java entity
 local function accessors_block(fields)
   local lines = {}
 
-  local function getter(prefix, type, name)
+  local function getter(type, name)
     return string.format(
       [[
     public %s get%s() {
@@ -47,19 +39,19 @@ local function accessors_block(fields)
     }
 ]],
       type,
-      capitalize(name),
+      utils().capitalize(name),
       name
     )
   end
 
-  local function setter(prefix, type, name)
+  local function setter(type, name)
     return string.format(
       [[
     public void set%s(%s %s) {
         this.%s = %s;
     }
 ]],
-      capitalize(name),
+      utils().capitalize(name),
       type,
       name,
       name,
@@ -67,36 +59,34 @@ local function accessors_block(fields)
     )
   end
 
-  table.insert(lines, getter("id", "Long", "id"))
-  table.insert(lines, setter("id", "Long", "id"))
+  table.insert(lines, getter("Long", "id"))
+  table.insert(lines, setter("Long", "id"))
   for _, field in ipairs(fields) do
-    table.insert(lines, getter("field", field.type, field.name))
-    table.insert(lines, setter("field", field.type, field.name))
+    table.insert(lines, getter(field.type, field.name))
+    table.insert(lines, setter(field.type, field.name))
   end
   return table.concat(lines, "\n")
 end
 
--- Setter calls used by the service, one per field
-local function field_setter_calls(fields)
+local function field_setter_calls(fields, var)
   local lines = {}
   for _, field in ipairs(fields) do
-    table.insert(lines, string.format("        entity.set%s(dto.%s());", capitalize(field.name), field.name))
+    table.insert(lines, string.format("        %s.set%s(dto.%s());", var, utils().capitalize(field.name), field.name))
   end
   return table.concat(lines, "\n")
 end
 
--- Arguments for the toDTO() constructor
 local function to_dto_args(fields)
   local lines = { "            entity.getId()" }
   for _, field in ipairs(fields) do
-    table.insert(lines, string.format("            entity.get%s()", capitalize(field.name)))
+    table.insert(lines, string.format("            entity.get%s()", utils().capitalize(field.name)))
   end
   return table.concat(lines, ",\n")
 end
 
--- Entity file (Lombok or plain Java)
 local function build_entity(base_package, name, fields, use_lombok)
   local entity_fields = fields_block(fields)
+  local table_name = name:lower()
 
   if use_lombok then
     return string.format(
@@ -123,7 +113,7 @@ public class %s {
 }
 ]],
       base_package,
-      name:lower(),
+      table_name,
       name,
       entity_fields
     )
@@ -162,7 +152,7 @@ public class %s {
 %s}
 ]],
     base_package,
-    name:lower(),
+    table_name,
     name,
     entity_fields,
     name,
@@ -234,8 +224,9 @@ public record %sResponseDTO(
 end
 
 local function build_service(base_package, name, fields)
-  local setters = field_setter_calls(fields)
-  local to_dto_args = to_dto_args(fields)
+  local create_setters = field_setter_calls(fields, "entity")
+  local update_setters = field_setter_calls(fields, "entity")
+  local dto_args = to_dto_args(fields)
 
   return string.format(
     [[
@@ -305,41 +296,42 @@ public class %sService {
     }
 }
 ]],
-    base_package, -- package
-    base_package, -- import dto request
+    base_package,
+    base_package,
     name,
-    base_package, -- import dto response
+    base_package,
     name,
-    base_package, -- import model
+    base_package,
     name,
-    base_package, -- import repository
+    base_package,
     name,
-    name, -- class
-    name, -- field repository type
-    name, -- constructor class
-    name, -- constructor param
-    name, -- create return
-    name, -- create param
-    name, -- entity var
-    name, -- new entity
-    setters, -- field setters (create)
-    name, -- findAll return
-    name, -- findById return
-    name, -- findById message
-    name, -- update return
-    name, -- update param
-    name, -- entity var (update)
-    name, -- update message
-    setters, -- field setters (update)
-    name, -- delete message
-    name, -- toDTO return
-    name, -- toDTO entity param
-    name, -- toDTO ctor class
-    to_dto_args -- toDTO args
+    name,
+    name,
+    name,
+    name,
+    name,
+    name,
+    name,
+    name,
+    create_setters,
+    name,
+    name,
+    name,
+    name,
+    name,
+    name,
+    name,
+    update_setters,
+    name,
+    name,
+    name,
+    name,
+    dto_args
   )
 end
 
 local function build_controller(base_package, name, fields)
+  local endpoint = utils().entity_to_endpoint(name)
   return string.format(
     [[
 package %s.controller;
@@ -398,7 +390,7 @@ public class %sController {
     name,
     base_package,
     name,
-    name:lower(),
+    endpoint,
     name,
     name,
     name,
@@ -413,27 +405,32 @@ public class %sController {
 end
 
 function M.generate_crud()
-  vim.ui.input({ prompt = "Nome da entidade (ex: Product): " }, function(name)
-    if not name or name == "" then
+  vim.ui.input({ prompt = "Entity name (e.g., Product): " }, function(raw_name)
+    if not raw_name or raw_name == "" then
       return
     end
 
-    vim.ui.input({ prompt = "Campos (ex: name:String,price:Double,active:Boolean): " }, function(fields_input)
+    local name = utils().to_pascal_case(raw_name)
+    if name == "" then
+      vim.notify("Invalid entity name", vim.log.levels.ERROR)
+      return
+    end
+
+    vim.ui.input({ prompt = "Fields (e.g., name:String,price:Double,active:Boolean): " }, function(fields_input)
       local fields = parse_fields(fields_input)
 
-      vim.ui.select({ "Sim", "Não" }, { prompt = "Usa Lombok (@Data)?" }, function(use_lombok)
+      vim.ui.select({ "Yes", "No" }, { prompt = "Use Lombok (@Data)?" }, function(use_lombok)
         if not use_lombok then
           return
         end
-        use_lombok = use_lombok == "Sim"
 
         local jutils = utils()
-        local package_name = jutils.detect_package()
-        local base_package = package_name:match("(.+)%.[^.]+$") or package_name
+        local base_package = jutils.get_base_package()
         local project_root = jutils.get_project_root()
+        local lombok = use_lombok == "Yes"
 
         local files = {
-          { sub = "model", filename = name, content = build_entity(base_package, name, fields, use_lombok) },
+          { sub = "model", filename = name, content = build_entity(base_package, name, fields, lombok) },
           { sub = "repository", filename = name .. "Repository", content = build_repository(base_package, name) },
           { sub = "dto", filename = name .. "RequestDTO", content = build_dto_request(base_package, name, fields) },
           { sub = "dto", filename = name .. "ResponseDTO", content = build_dto_response(base_package, name, fields) },
@@ -448,21 +445,16 @@ function M.generate_crud()
         local created = {}
         for _, file in ipairs(files) do
           local dir = project_root .. "/src/main/java/" .. base_package:gsub("%.", "/") .. "/" .. file.sub
-          vim.fn.mkdir(dir, "p")
-          local full_path = dir .. "/" .. file.filename .. ".java"
-          local f = io.open(full_path, "w")
-          if f then
-            f:write(file.content)
-            f:close()
+          if jutils.write_file(dir .. "/" .. file.filename .. ".java", file.content) then
             table.insert(created, file.filename .. ".java")
           end
         end
 
         vim.notify(
           string.format(
-            "✨ Complete CRUD generated for %s (%s Lombok)!\n📁 %s",
+            "Generated CRUD for %s (%s Lombok)\nFiles: %s",
             name,
-            use_lombok and "with" or "without",
+            lombok and "with" or "without",
             table.concat(created, ", ")
           ),
           vim.log.levels.INFO

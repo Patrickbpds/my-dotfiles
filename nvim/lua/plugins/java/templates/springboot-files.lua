@@ -1,7 +1,4 @@
 local M = {}
--- ============================================================================
--- Spring Boot Templates
--- ============================================================================
 
 local function utils()
   return require("plugins.java.java-utils")
@@ -151,27 +148,38 @@ public class %s {
 }
 ]]
 
--- ============================================================================
--- Generate Spring Boot File
--- ============================================================================
+local SPRING_PACKAGES = {
+  ["Controller"] = "controller",
+  ["Service"] = "service",
+  ["Repository"] = "repository",
+  ["Entity"] = "model",
+  ["DTO Request"] = "dto",
+  ["DTO Response"] = "dto",
+  ["Mapper"] = "mapper",
+  ["Config"] = "config",
+  ["Exception"] = "exception",
+  ["Exception Handler"] = "exception",
+}
+
 local function generate_spring_template(kind, name)
-  local package_name = utils().detect_package()
-  local endpoint = name:lower()
-  local entity = name
+  local jutils = utils()
+  local base_package = jutils.get_base_package()
+  local target_package = base_package .. "." .. SPRING_PACKAGES[kind]
+  local endpoint = jutils.entity_to_endpoint(name)
   local class_name
   local content
 
   if kind == "Controller" then
     class_name = name .. "Controller"
-    content = string.format(spring_templates.controller, package_name, endpoint, class_name)
+    content = string.format(spring_templates.controller, target_package, endpoint, class_name)
   elseif kind == "Service" then
     class_name = name .. "Service"
     content = string.format(
       spring_templates.service,
-      package_name, -- package
-      package_name,
+      target_package,
+      base_package,
       name,
-      package_name,
+      base_package,
       name,
       class_name,
       name,
@@ -186,40 +194,38 @@ local function generate_spring_template(kind, name)
     )
   elseif kind == "Repository" then
     class_name = name .. "Repository"
-    content = string.format(spring_templates.repository, package_name, package_name, entity, class_name, entity)
+    content = string.format(spring_templates.repository, target_package, base_package, name, class_name, name)
   elseif kind == "Entity" then
     class_name = name
-    content = string.format(spring_templates.entity, package_name, class_name)
+    content = string.format(spring_templates.entity, target_package, class_name)
   elseif kind == "DTO Request" then
     class_name = name .. "RequestDTO"
-    content = string.format(spring_templates.dto_request, package_name, class_name)
+    content = string.format(spring_templates.dto_request, target_package, class_name)
   elseif kind == "DTO Response" then
     class_name = name .. "ResponseDTO"
-    content = string.format(spring_templates.dto_response, package_name, class_name)
+    content = string.format(spring_templates.dto_response, target_package, class_name)
   elseif kind == "Mapper" then
     class_name = name .. "Mapper"
-    content = string.format(spring_templates.mapper, package_name, class_name)
+    content = string.format(spring_templates.mapper, target_package, class_name)
   elseif kind == "Config" then
     class_name = name .. "Config"
-    content = string.format(spring_templates.config, package_name, class_name)
+    content = string.format(spring_templates.config, target_package, class_name)
   elseif kind == "Exception" then
     class_name = name .. "Exception"
-    content = string.format(spring_templates.exception, package_name, class_name, class_name)
+    content = string.format(spring_templates.exception, target_package, class_name, class_name)
   elseif kind == "Exception Handler" then
     class_name = name .. "ExceptionHandler"
-    content = string.format(spring_templates.exception_handler, package_name, class_name)
+    content = string.format(spring_templates.exception_handler, target_package, class_name)
   else
-    vim.notify("Template não definido: " .. kind, vim.log.levels.ERROR)
+    vim.notify("Unknown template: " .. kind, vim.log.levels.ERROR)
     return
   end
 
-  local dir = vim.fn.expand("%:p:h")
-  utils().write_java_file(dir, class_name, content)
+  local root = jutils.get_project_root()
+  local dir = root .. "/src/main/java/" .. target_package:gsub("%.", "/")
+  jutils.write_java_file(dir, class_name, content)
 end
 
--- ============================================================================
--- Spring Boot Generator Menu
--- ============================================================================
 function M.spring_boot_generator()
   local options = {
     "Controller",
