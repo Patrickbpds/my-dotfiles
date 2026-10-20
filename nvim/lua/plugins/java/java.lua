@@ -5,7 +5,6 @@ local dependency = require("plugins.java.dependency-management")
 local profiles = require("plugins.java.profiles-management")
 local migrations = require("plugins.java.migrations")
 
--- Build/Run
 M.spring_boot_run = build_run.spring_boot_run
 M.spring_boot_run_profile = build_run.spring_boot_run_profile
 M.maven_build = build_run.maven_build
@@ -17,24 +16,21 @@ M.gradle_test = build_run.gradle_test
 M.gradle_clean = build_run.gradle_clean
 M.stop_app = build_run.stop_app
 
--- Dependencies
 M.add_dependency = dependency.add_dependency
 M.show_dependency_tree = dependency.show_dependency_tree
 M.check_vulnerabilities = dependency.check_vulnerabilities
 M.update_dependencies = dependency.update_dependencies
 
--- Profiles
 M.switch_profile = profiles.switch_profile
 M.edit_properties = profiles.edit_properties
 M.edit_profile_properties = profiles.edit_profile_properties
 M.create_new_profile = profiles.create_new_profile
 M.show_profile_info = profiles.show_profile_info
+M.get_active_profile = profiles.get_active_profile
 
--- Migrations
 M.flyway_migrate = migrations.flyway_migrate
 M.create_migration = migrations.create_migration
 
--- Generators
 M.file_generator = function()
   require("plugins.java.templates.java-files").file_generator()
 end
