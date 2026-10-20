@@ -1,5 +1,7 @@
 local M = {}
 
+local RECORD_MIN_VERSION = 16
+
 local function utils()
   return require("plugins.java.java-utils")
 end
@@ -425,6 +427,15 @@ function M.generate_crud()
         end
 
         local jutils = utils()
+        local version = jutils.get_java_version()
+        if version and version < RECORD_MIN_VERSION then
+          vim.notify(
+            string.format("The CRUD generator uses records and needs Java %d+ (active: %d)", RECORD_MIN_VERSION, version),
+            vim.log.levels.ERROR
+          )
+          return
+        end
+
         local base_package = jutils.get_base_package()
         local project_root = jutils.get_project_root()
         local lombok = use_lombok == "Yes"
@@ -445,15 +456,20 @@ function M.generate_crud()
         local created = {}
         for _, file in ipairs(files) do
           local dir = project_root .. "/src/main/java/" .. base_package:gsub("%.", "/") .. "/" .. file.sub
-          if jutils.write_file(dir .. "/" .. file.filename .. ".java", file.content) then
+          local content = file.content
+          if version then
+            content = string.format("// Generated for Java %d\n%s", version, content)
+          end
+          if jutils.write_file(dir .. "/" .. file.filename .. ".java", content) then
             table.insert(created, file.filename .. ".java")
           end
         end
 
         vim.notify(
           string.format(
-            "Generated CRUD for %s (%s Lombok)\nFiles: %s",
+            "Generated CRUD for %s (Java %s, %s Lombok)\nFiles: %s",
             name,
+            version or "?",
             lombok and "with" or "without",
             table.concat(created, ", ")
           ),

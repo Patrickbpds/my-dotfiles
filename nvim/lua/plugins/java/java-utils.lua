@@ -96,6 +96,86 @@ function M.get_project_root()
   return root or vim.fn.getcwd()
 end
 
+local function parse_java_version(text)
+  if not text then
+    return nil
+  end
+  local version = text:match("JAVA_VERSION%s*=%s*\"([%d_.]+)\"")
+  if version then
+    version = version:gsub("_", ".")
+    local major = tonumber(version:match("^(%d+)"))
+    if major and major >= 9 then
+      return major
+    end
+    local minor = tonumber(version:match("^1%.(%d+)"))
+    if minor then
+      return minor
+    end
+  end
+  return tonumber(text:match("^(%d+)"))
+end
+
+local function java_version_from_release()
+  local home = vim.fn.getenv("JAVA_HOME")
+  if not home or home == vim.NIL or home == "" then
+    return nil
+  end
+  local release = home .. "/release"
+  if vim.fn.filereadable(release) == 0 then
+    return nil
+  end
+  return parse_java_version(M.read_file(release))
+end
+
+local function java_version_from_command()
+  local ok, output = pcall(function()
+    return vim.fn.system({ "java", "-version" })
+  end)
+  if not ok or vim.v.shell_error ~= 0 then
+    return nil
+  end
+  return tonumber(output:match('version%s*"(%d+)'))
+end
+
+local function java_version_from_build_file(build_tool)
+  local root = M.get_project_root()
+  if build_tool == "maven" then
+    local pom = M.read_file(root .. "/pom.xml")
+    if pom then
+      local version = pom:match("<java%.version>%s*([%d]+)%s*<") or pom:match("<maven%.compiler%.release>%s*([%d]+)%s*<")
+      if version then
+        return tonumber(version)
+      end
+    end
+  elseif build_tool == "gradle" then
+    for _, file in ipairs({ "build.gradle", "build.gradle.kts" }) do
+      local content = M.read_file(root .. "/" .. file)
+      if content then
+        local version = content:match("JavaLanguageVersion%.of%s*%(%s*(%d+)%s*%)")
+          or content:match("sourceCompatibility%s*=%s*['\"]?(%d+)")
+          or content:match("targetCompatibility%s*=%s*['\"]?(%d+)")
+        if version then
+          return tonumber(version)
+        end
+      end
+    end
+  end
+  return nil
+end
+
+function M.get_java_version()
+  local build_tool = M.get_build_tool()
+  return java_version_from_build_file(build_tool)
+    or java_version_from_release()
+    or java_version_from_command()
+    or tonumber(string.match(_VERSION, "(%d+)"))
+end
+
+function M.has_java_version(minimum)
+  local version = M.get_java_version()
+  return version ~= nil and version >= minimum
+end
+
 function M.get_build_tool()
   local root = M.get_project_root()
   if vim.fn.filereadable(root .. "/pom.xml") == 1 then
@@ -171,9 +251,14 @@ function M.write_file(path, content)
   return true
 end
 
-function M.write_java_file(dir, class_name, content)
+function M.write_java_file(dir, class_name, content, version)
   vim.fn.mkdir(dir, "p")
   local full_path = dir .. "/" .. class_name .. ".java"
+
+  local java_version = version or M.get_java_version()
+  if java_version then
+    content = string.format("// Generated for Java %d\n%s", java_version, content)
+  end
 
   if not M.write_file(full_path, content) then
     vim.notify("Failed to write file: " .. full_path, vim.log.levels.ERROR)
@@ -181,7 +266,7 @@ function M.write_java_file(dir, class_name, content)
   end
 
   vim.cmd("edit " .. vim.fn.fnameescape(full_path))
-  vim.notify("Created: " .. class_name)
+  vim.notify(string.format("Created: %s (Java %s)", class_name, java_version or "?"))
 end
 
 function M.capitalize(str)

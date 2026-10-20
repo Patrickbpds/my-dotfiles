@@ -42,8 +42,20 @@ public record %s() {
 ]],
 }
 
+local RECORD_MIN_VERSION = 16
+
 local function generate_java_file(file_type, name)
   local jutils = utils()
+  local version = jutils.get_java_version()
+
+  if file_type == "record" and version and version < RECORD_MIN_VERSION then
+    vim.notify(
+      string.format("Records require Java %d+ but the active version is %d", RECORD_MIN_VERSION, version),
+      vim.log.levels.WARN
+    )
+    return
+  end
+
   local package_name = jutils.detect_package()
   local project_root = jutils.get_project_root()
   local package_path = package_name:gsub("%.", "/")
@@ -54,7 +66,7 @@ local function generate_java_file(file_type, name)
   local dir = project_root .. base_dir .. package_path
 
   local content = string.format(java_templates[file_type], package_name, name)
-  jutils.write_java_file(dir, name, content)
+  jutils.write_java_file(dir, name, content, version)
 end
 
 function M.file_generator()

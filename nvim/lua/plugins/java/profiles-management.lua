@@ -474,6 +474,10 @@ local function show_profile_info()
     table.insert(info, "   → (none)")
   end
 
+  local java_version = utils().get_java_version()
+  table.insert(info, "")
+  table.insert(info, "☕ Active Java: " .. (java_version and tostring(java_version) or "unknown"))
+
   table.insert(info, "")
   table.insert(info, "📋 Available Profiles:")
 

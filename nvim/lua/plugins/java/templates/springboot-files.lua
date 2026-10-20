@@ -223,7 +223,7 @@ local function generate_spring_template(kind, name)
 
   local root = jutils.get_project_root()
   local dir = root .. "/src/main/java/" .. target_package:gsub("%.", "/")
-  jutils.write_java_file(dir, class_name, content)
+  jutils.write_java_file(dir, class_name, content, jutils.get_java_version())
 end
 
 function M.spring_boot_generator()
@@ -240,7 +240,10 @@ function M.spring_boot_generator()
     "Exception Handler",
   }
 
-  vim.ui.select(options, { prompt = "Generate Spring Boot file:" }, function(choice)
+  local version = utils().get_java_version()
+  local prompt = string.format("Generate Spring Boot file (Java %s):", version or "?")
+
+  vim.ui.select(options, { prompt = prompt }, function(choice)
     if not choice then
       return
     end
