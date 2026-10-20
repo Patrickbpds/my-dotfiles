@@ -1,28 +1,17 @@
 local M = {}
 
--- ============================================================================
--- 📦 DEPENDENCY MANAGEMENT
--- ============================================================================
-
 local function utils()
   return require("plugins.java.java-utils")
 end
 
--- Run a command in a terminal from the project root
 local function run_in_terminal(cmd)
-  local root = utils().get_project_root()
-  local old_cwd = vim.fn.getcwd()
-  vim.fn.chdir(root)
-  vim.cmd("botright split | terminal " .. cmd)
-  vim.fn.chdir(old_cwd)
-  vim.cmd("startinsert")
+  utils().run_in_terminal(cmd)
 end
 
 local function build_command(tool)
   return utils().get_build_command(tool)
 end
 
--- Preserve the query string for the Maven Central search API (encoding)
 local function urlencode(str)
   return (
     str
@@ -33,7 +22,6 @@ local function urlencode(str)
   )
 end
 
--- Resolve the latest version of an artifact from the Maven Central search API
 local function fetch_latest_version(group_id, artifact_id)
   local query = string.format(
     "https://search.maven.org/solrsearch/select?q=g:%s+AND+a:%s&rows=1&wt=json",
@@ -50,8 +38,7 @@ local function fetch_latest_version(group_id, artifact_id)
   return latest
 end
 
--- Maven: insert a <dependency> block inside <dependencies>
-local function insert_maven_dependency(group_id, artifact_id, version, force_version)
+local function insert_maven_dependency(group_id, artifact_id, version)
   local root = utils().get_project_root()
   local pom_path = root .. "/pom.xml"
   if vim.fn.filereadable(pom_path) == 0 then
@@ -68,12 +55,11 @@ local function insert_maven_dependency(group_id, artifact_id, version, force_ver
     "            <groupId>" .. group_id .. "</groupId>",
     "            <artifactId>" .. artifact_id .. "</artifactId>",
   }
-  if force_version and version and version ~= "" then
+  if version and version ~= "" then
     table.insert(dependency_lines, "            <version>" .. version .. "</version>")
   end
   table.insert(dependency_lines, "        </dependency>")
 
-  -- Find the line index of the closing </dependencies> tag
   local insertion_index = nil
   for i, line in ipairs(content) do
     if line:match("^%s*</dependencies>%s*$") then
@@ -102,8 +88,7 @@ local function insert_maven_dependency(group_id, artifact_id, version, force_ver
   return nil
 end
 
--- Gradle: insert an implementation(...) line inside the dependencies block
-local function insert_gradle_dependency(group_id, artifact_id, version, force_version)
+local function insert_gradle_dependency(group_id, artifact_id, version)
   local root = utils().get_project_root()
   local candidates = { "build.gradle", "build.gradle.kts" }
   local build_file
@@ -123,10 +108,10 @@ local function insert_gradle_dependency(group_id, artifact_id, version, force_ve
   end
 
   local quote = build_file:match("%.kts$") and '"' or "'"
-  local version_part = force_version and (":" .. version) or ""
+  local has_version = version and version ~= ""
+  local version_part = has_version and (":" .. version) or ""
   local dep = string.format("implementation %s%s:%s%s%s", quote, group_id, artifact_id, version_part, quote)
 
-  -- Find the dependencies block and its closing brace
   local dep_start, dep_end = nil, nil
   local in_block = false
   for i, line in ipairs(content) do
@@ -182,11 +167,7 @@ local function add_dependency()
           return
         end
 
-        -- If empty, resolve to the latest version found automatically
-        local auto_latest = version == "" and latest or version
-        local use_latest = version == "" and latest ~= nil
-
-        if use_latest then
+        if version == "" and latest then
           version = latest
         end
         if not version or version == "" then
@@ -196,14 +177,14 @@ local function add_dependency()
 
         local inserted
         if build_tool == "maven" then
-          inserted = insert_maven_dependency(group_id, artifact_id, version, not use_latest)
+          inserted = insert_maven_dependency(group_id, artifact_id, version)
         elseif build_tool == "gradle" then
-          inserted = insert_gradle_dependency(group_id, artifact_id, version, not use_latest)
+          inserted = insert_gradle_dependency(group_id, artifact_id, version)
         end
 
         if inserted then
           vim.notify(
-            string.format("✅ Added %s:%s:%s (%s:%d)", group_id, artifact_id, version, inserted.path, inserted.line),
+            string.format("Added %s:%s:%s (%s:%d)", group_id, artifact_id, version, inserted.path, inserted.line),
             vim.log.levels.INFO
           )
         else
