@@ -1,56 +1,104 @@
-local registered = false
+local M = {}
 
-local function setup_custom_java_keymaps()
-  if registered then
-    return
-  end
-  registered = true
-
-  local java = require("plugins.java.java")
-
-  -- ========== BUILD E RUN ==========
-  vim.keymap.set("n", "<leader>jrs", java.spring_boot_run, { desc = "Run Spring Boot" })
-  vim.keymap.set("n", "<leader>jrp", java.spring_boot_run_profile, { desc = "Run with Profile" })
-  vim.keymap.set("n", "<leader>jrk", java.stop_app, { desc = "Stop App" })
-  vim.keymap.set("n", "<leader>jrm", java.maven_build, { desc = "Maven Build" })
-  vim.keymap.set("n", "<leader>jrg", java.gradle_build, { desc = "Gradle Build" })
-
-  -- ========== MAVEN ==========
-  vim.keymap.set("n", "<leader>jmt", java.maven_test, { desc = "Maven Test" })
-  vim.keymap.set("n", "<leader>jmv", java.maven_verify, { desc = "Maven Verify" })
-  vim.keymap.set("n", "<leader>jmp", java.maven_package, { desc = "Maven Package" })
-
-  -- ========== GRADLE ==========
-  vim.keymap.set("n", "<leader>jwt", java.gradle_test, { desc = "Gradle Test" })
-  vim.keymap.set("n", "<leader>jwc", java.gradle_clean, { desc = "Gradle Clean Build" })
-
-  -- ========== GERADORES ==========
-  vim.keymap.set("n", "<leader>jn", java.file_generator, { desc = "New Java File" })
-  vim.keymap.set("n", "<leader>js", java.spring_boot_generator, { desc = "New Spring File" })
-  vim.keymap.set("n", "<leader>jg", java.generate_crud, { desc = "Generate CRUD" })
-
-  -- ========== DATABASE ==========
-  vim.keymap.set("n", "<leader>jbr", java.flyway_migrate, { desc = "Run Flyway Migrate" })
-  vim.keymap.set("n", "<leader>jbn", java.create_migration, { desc = "New Migration" })
-
-  -- ========== PROFILES ==========
-  vim.keymap.set("n", "<leader>jps", java.switch_profile, { desc = "Switch Profile" })
-  vim.keymap.set("n", "<leader>jpn", java.create_new_profile, { desc = "New Profile" })
-  vim.keymap.set("n", "<leader>jpe", java.edit_properties, { desc = "Edit Properties Config" })
-  vim.keymap.set("n", "<leader>jpp", java.edit_profile_properties, { desc = "Edit Profile Config" })
-  vim.keymap.set("n", "<leader>jpi", java.show_profile_info, { desc = "Profile Info" })
-
-  -- ========== DEPENDÊNCIAS ==========
-  vim.keymap.set("n", "<leader>jda", java.add_dependency, { desc = "Add Dependency" })
-  vim.keymap.set("n", "<leader>jdt", java.show_dependency_tree, { desc = "Dependency Tree" })
-  vim.keymap.set("n", "<leader>jdu", java.update_dependencies, { desc = "Update Dependencies" })
-  vim.keymap.set("n", "<leader>jdv", java.check_vulnerabilities, { desc = "Check Vulnerabilities" })
+local function java()
+  return require("plugins.java.java")
 end
 
--- Load keymaps when opening a Java file
+local keymaps = {
+  { "<leader>jrs", function()
+    java().spring_boot_run()
+  end, "Run Spring Boot" },
+  { "<leader>jrp", function()
+    java().spring_boot_run_profile()
+  end, "Run with Profile" },
+  { "<leader>jrk", function()
+    java().stop_app()
+  end, "Stop App" },
+  { "<leader>jrm", function()
+    java().maven_build()
+  end, "Maven Build" },
+  { "<leader>jrg", function()
+    java().gradle_build()
+  end, "Gradle Build" },
+
+  { "<leader>jmt", function()
+    java().maven_test()
+  end, "Maven Test" },
+  { "<leader>jmv", function()
+    java().maven_verify()
+  end, "Maven Verify" },
+  { "<leader>jmp", function()
+    java().maven_package()
+  end, "Maven Package" },
+
+  { "<leader>jwt", function()
+    java().gradle_test()
+  end, "Gradle Test" },
+  { "<leader>jwc", function()
+    java().gradle_clean()
+  end, "Gradle Clean Build" },
+
+  { "<leader>jn", function()
+    java().file_generator()
+  end, "New Java File" },
+  { "<leader>js", function()
+    java().spring_boot_generator()
+  end, "New Spring File" },
+  { "<leader>jg", function()
+    java().generate_crud()
+  end, "Generate CRUD" },
+
+  { "<leader>jbr", function()
+    java().flyway_migrate()
+  end, "Run Flyway Migrate" },
+  { "<leader>jbn", function()
+    java().create_migration()
+  end, "New Migration" },
+
+  { "<leader>jps", function()
+    java().switch_profile()
+  end, "Switch Profile" },
+  { "<leader>jpn", function()
+    java().create_new_profile()
+  end, "New Profile" },
+  { "<leader>jpe", function()
+    java().edit_properties()
+  end, "Edit Properties Config" },
+  { "<leader>jpp", function()
+    java().edit_profile_properties()
+  end, "Edit Profile Config" },
+  { "<leader>jpi", function()
+    java().show_profile_info()
+  end, "Profile Info" },
+
+  { "<leader>jda", function()
+    java().add_dependency()
+  end, "Add Dependency" },
+  { "<leader>jdt", function()
+    java().show_dependency_tree()
+  end, "Dependency Tree" },
+  { "<leader>jdu", function()
+    java().update_dependencies()
+  end, "Update Dependencies" },
+  { "<leader>jdv", function()
+    java().check_vulnerabilities()
+  end, "Check Vulnerabilities" },
+}
+
+function M.setup()
+  if vim.g.java_keymaps_registered then
+    return
+  end
+  vim.g.java_keymaps_registered = true
+
+  for _, map in ipairs(keymaps) do
+    vim.keymap.set("n", map[1], map[2], { desc = map[3] })
+  end
+end
+
 vim.api.nvim_create_autocmd("FileType", {
   pattern = "java",
-  callback = setup_custom_java_keymaps,
+  callback = M.setup,
 })
 
-return { setup = setup_custom_java_keymaps }
+return M
