@@ -1,5 +1,4 @@
 return {
-  { "nvim-tree/nvim-web-devicons" },
   {
     "akinsho/bufferline.nvim",
 
