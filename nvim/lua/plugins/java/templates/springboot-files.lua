@@ -1,5 +1,7 @@
 local M = {}
 
+local RECORD_MIN_VERSION = 16
+
 local function utils()
   return require("plugins.java.java-utils")
 end
@@ -77,7 +79,7 @@ public interface %s extends JpaRepository<%s, Long> {
 spring_templates.entity = [[
 package %s;
 
-import jakarta.persistence.*;
+import %s.persistence.*;
 
 @Entity
 public class %s {
@@ -86,25 +88,6 @@ public class %s {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 }
-]]
-
-spring_templates.dto_request = [[
-package %s;
-
-public record %s(
-    String name,
-    String email
-) {}
-]]
-
-spring_templates.dto_response = [[
-package %s;
-
-public record %s(
-    Long id,
-    String name,
-    String email
-) {}
 ]]
 
 spring_templates.mapper = [[
@@ -161,11 +144,106 @@ local SPRING_PACKAGES = {
   ["Exception Handler"] = "exception",
 }
 
-local function generate_spring_template(kind, name)
+local function dto_fields(fields)
+  local lines = {}
+  for _, field in ipairs(fields) do
+    table.insert(lines, string.format("    private %s %s;", field.type, field.name))
+  end
+  return table.concat(lines, "\n")
+end
+
+local function dto_default_constructor(class_name)
+  return string.format("    public %s() {\n    }", class_name)
+end
+
+local function dto_constructor(class_name, fields)
+  local params = {}
+  local assignments = {}
+  for _, field in ipairs(fields) do
+    table.insert(params, string.format("%s %s", field.type, field.name))
+    table.insert(assignments, string.format("        this.%s = %s;", field.name, field.name))
+  end
+  return string.format("    public %s(%s) {\n%s\n    }", class_name, table.concat(params, ", "), table.concat(assignments, "\n"))
+end
+
+local function dto_accessors(fields)
+  local blocks = {}
+  for _, field in ipairs(fields) do
+    local capitalized = utils().capitalize(field.name)
+    table.insert(
+      blocks,
+      string.format("    public %s get%s() {\n        return %s;\n    }", field.type, capitalized, field.name)
+    )
+    table.insert(
+      blocks,
+      string.format(
+        "    public void set%s(%s %s) {\n        this.%s = %s;\n    }",
+        capitalized,
+        field.type,
+        field.name,
+        field.name,
+        field.name
+      )
+    )
+  end
+  return table.concat(blocks, "\n\n")
+end
+
+local function dto_class(package, class_name, fields)
+  return string.format(
+    [[
+package %s;
+
+public class %s {
+
+%s
+
+%s
+
+%s
+
+%s
+}
+]],
+    package,
+    class_name,
+    dto_fields(fields),
+    dto_default_constructor(class_name),
+    dto_constructor(class_name, fields),
+    dto_accessors(fields)
+  )
+end
+
+local function dto_record(package, class_name, fields)
+  local lines = {}
+  for _, field in ipairs(fields) do
+    table.insert(lines, string.format("    %s %s", field.type, field.name))
+  end
+  return string.format(
+    [[
+package %s;
+
+public record %s(
+%s
+) {}
+]],
+    package,
+    class_name,
+    table.concat(lines, ",\n")
+  )
+end
+
+local function render_spring_template(kind, name, options)
+  options = options or {}
   local jutils = utils()
-  local base_package = jutils.get_base_package()
+  local base_package = options.base_package or jutils.get_base_package()
   local target_package = base_package .. "." .. SPRING_PACKAGES[kind]
   local endpoint = jutils.entity_to_endpoint(name)
+  local java_version = options.java_version
+  if java_version == nil then
+    java_version = jutils.get_java_version()
+  end
+  local use_record = (java_version or 0) >= RECORD_MIN_VERSION
   local class_name
   local content
 
@@ -197,13 +275,23 @@ local function generate_spring_template(kind, name)
     content = string.format(spring_templates.repository, target_package, base_package, name, class_name, name)
   elseif kind == "Entity" then
     class_name = name
-    content = string.format(spring_templates.entity, target_package, class_name)
+    local namespace = options.namespace or jutils.get_jakarta_namespace(java_version)
+    content = string.format(spring_templates.entity, target_package, namespace, class_name)
   elseif kind == "DTO Request" then
     class_name = name .. "RequestDTO"
-    content = string.format(spring_templates.dto_request, target_package, class_name)
+    local fields = {
+      { name = "name", type = "String" },
+      { name = "email", type = "String" },
+    }
+    content = use_record and dto_record(target_package, class_name, fields) or dto_class(target_package, class_name, fields)
   elseif kind == "DTO Response" then
     class_name = name .. "ResponseDTO"
-    content = string.format(spring_templates.dto_response, target_package, class_name)
+    local fields = {
+      { name = "id", type = "Long" },
+      { name = "name", type = "String" },
+      { name = "email", type = "String" },
+    }
+    content = use_record and dto_record(target_package, class_name, fields) or dto_class(target_package, class_name, fields)
   elseif kind == "Mapper" then
     class_name = name .. "Mapper"
     content = string.format(spring_templates.mapper, target_package, class_name)
@@ -217,13 +305,34 @@ local function generate_spring_template(kind, name)
     class_name = name .. "ExceptionHandler"
     content = string.format(spring_templates.exception_handler, target_package, class_name)
   else
+    return nil
+  end
+
+  return {
+    class_name = class_name,
+    content = content,
+    package = target_package,
+    java_version = java_version,
+  }
+end
+
+function M.render(kind, name, options)
+  if not SPRING_PACKAGES[kind] then
+    return nil
+  end
+  return render_spring_template(kind, name, options)
+end
+
+local function generate_spring_template(kind, name)
+  local rendered = M.render(kind, name)
+  if not rendered then
     vim.notify("Unknown template: " .. kind, vim.log.levels.ERROR)
     return
   end
 
-  local root = jutils.get_project_root()
-  local dir = root .. "/src/main/java/" .. target_package:gsub("%.", "/")
-  jutils.write_java_file(dir, class_name, content, jutils.get_java_version())
+  local jutils = utils()
+  local dir = jutils.get_project_root() .. "/src/main/java/" .. rendered.package:gsub("%.", "/")
+  jutils.write_java_file(dir, rendered.class_name, rendered.content, rendered.java_version)
 end
 
 function M.spring_boot_generator()
