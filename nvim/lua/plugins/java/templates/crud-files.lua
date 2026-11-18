@@ -33,20 +33,20 @@ end
 local function accessors_block(fields)
   local lines = {}
 
-  local function getter(type, name)
+  local function getter(field_type, name)
     return string.format(
       [[
     public %s get%s() {
         return %s;
     }
 ]],
-      type,
+      field_type,
       utils().capitalize(name),
       name
     )
   end
 
-  local function setter(type, name)
+  local function setter(field_type, name)
     return string.format(
       [[
     public void set%s(%s %s) {
@@ -54,7 +54,7 @@ local function accessors_block(fields)
     }
 ]],
       utils().capitalize(name),
-      type,
+      field_type,
       name,
       name,
       name
@@ -70,10 +70,20 @@ local function accessors_block(fields)
   return table.concat(lines, "\n")
 end
 
-local function field_setter_calls(fields, var)
+local function dto_accessor(field, use_record)
+  if use_record then
+    return field.name .. "()"
+  end
+  return "get" .. utils().capitalize(field.name) .. "()"
+end
+
+local function field_setter_calls(fields, var, use_record)
   local lines = {}
   for _, field in ipairs(fields) do
-    table.insert(lines, string.format("        %s.set%s(dto.%s());", var, utils().capitalize(field.name), field.name))
+    table.insert(
+      lines,
+      string.format("        %s.set%s(dto.%s);", var, utils().capitalize(field.name), dto_accessor(field, use_record))
+    )
   end
   return table.concat(lines, "\n")
 end
@@ -86,7 +96,7 @@ local function to_dto_args(fields)
   return table.concat(lines, ",\n")
 end
 
-local function build_entity(base_package, name, fields, use_lombok)
+local function build_entity(base_package, name, fields, use_lombok, namespace)
   local entity_fields = fields_block(fields)
   local table_name = name:lower()
 
@@ -95,7 +105,7 @@ local function build_entity(base_package, name, fields, use_lombok)
       [[
 package %s.model;
 
-import jakarta.persistence.*;
+import %s.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -115,6 +125,7 @@ public class %s {
 }
 ]],
       base_package,
+      namespace,
       table_name,
       name,
       entity_fields
@@ -132,7 +143,7 @@ public class %s {
     [[
 package %s.model;
 
-import jakarta.persistence.*;
+import %s.persistence.*;
 
 @Entity
 @Table(name = "%s")
@@ -154,6 +165,7 @@ public class %s {
 %s}
 ]],
     base_package,
+    namespace,
     table_name,
     name,
     entity_fields,
@@ -187,27 +199,90 @@ public interface %sRepository extends JpaRepository<%s, Long> {
   )
 end
 
-local function build_dto_request(base_package, name, fields)
+local function dto_fields(fields)
   local lines = {}
-  for i, field in ipairs(fields) do
-    lines[i] = string.format("    %s %s", field.type, field.name)
+  for _, field in ipairs(fields) do
+    table.insert(lines, string.format("    private %s %s;", field.type, field.name))
   end
+  return table.concat(lines, "\n")
+end
+
+local function dto_constructor_params(fields)
+  local params = {}
+  for _, field in ipairs(fields) do
+    table.insert(params, string.format("%s %s", field.type, field.name))
+  end
+  return table.concat(params, ", ")
+end
+
+local function dto_constructor_body(fields)
+  local lines = {}
+  for _, field in ipairs(fields) do
+    table.insert(lines, string.format("        this.%s = %s;", field.name, field.name))
+  end
+  return table.concat(lines, "\n")
+end
+
+local function dto_accessors(fields)
+  local blocks = {}
+  for _, field in ipairs(fields) do
+    local capitalized = utils().capitalize(field.name)
+    table.insert(
+      blocks,
+      string.format("    public %s get%s() {\n        return %s;\n    }", field.type, capitalized, field.name)
+    )
+    table.insert(
+      blocks,
+      string.format(
+        "    public void set%s(%s %s) {\n        this.%s = %s;\n    }",
+        capitalized,
+        field.type,
+        field.name,
+        field.name,
+        field.name
+      )
+    )
+  end
+  return table.concat(blocks, "\n\n")
+end
+
+local function build_dto_class(base_package, class_name, fields)
   return string.format(
     [[
 package %s.dto;
 
-public record %sRequestDTO(
+public class %s {
+
 %s
-) {}
+
+    public %s() {
+    }
+
+    public %s(%s) {
+%s
+    }
+
+%s
+}
 ]],
     base_package,
-    name,
-    table.concat(lines, ",\n")
+    class_name,
+    dto_fields(fields),
+    class_name,
+    class_name,
+    dto_constructor_params(fields),
+    dto_constructor_body(fields),
+    dto_accessors(fields)
   )
 end
 
-local function build_dto_response(base_package, name, fields)
-  local lines = { "    Long id" }
+local function build_dto_request(base_package, name, fields, use_record)
+  local class_name = name .. "RequestDTO"
+  if not use_record then
+    return build_dto_class(base_package, class_name, fields)
+  end
+
+  local lines = {}
   for _, field in ipairs(fields) do
     table.insert(lines, string.format("    %s %s", field.type, field.name))
   end
@@ -215,20 +290,49 @@ local function build_dto_response(base_package, name, fields)
     [[
 package %s.dto;
 
-public record %sResponseDTO(
+public record %s(
 %s
 ) {}
 ]],
     base_package,
-    name,
+    class_name,
     table.concat(lines, ",\n")
   )
 end
 
-local function build_service(base_package, name, fields)
-  local create_setters = field_setter_calls(fields, "entity")
-  local update_setters = field_setter_calls(fields, "entity")
+local function build_dto_response(base_package, name, fields, use_record)
+  local class_name = name .. "ResponseDTO"
+  local response_fields = { { name = "id", type = "Long" } }
+  vim.list_extend(response_fields, fields)
+
+  if not use_record then
+    return build_dto_class(base_package, class_name, response_fields)
+  end
+
+  local lines = {}
+  for _, field in ipairs(response_fields) do
+    table.insert(lines, string.format("    %s %s", field.type, field.name))
+  end
+  return string.format(
+    [[
+package %s.dto;
+
+public record %s(
+%s
+) {}
+]],
+    base_package,
+    class_name,
+    table.concat(lines, ",\n")
+  )
+end
+
+local function build_service(base_package, name, fields, use_record)
+  local create_setters = field_setter_calls(fields, "entity", use_record)
+  local update_setters = field_setter_calls(fields, "entity", use_record)
   local dto_args = to_dto_args(fields)
+  local collect_import = use_record and "" or "import java.util.stream.Collectors;\n"
+  local collect_suffix = use_record and ".toList()" or ".collect(Collectors.toList())"
 
   return string.format(
     [[
@@ -242,7 +346,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-
+%s
 @Service
 public class %sService {
 
@@ -264,7 +368,7 @@ public class %sService {
     public List<%sResponseDTO> findAll() {
         return repository.findAll().stream()
                 .map(this::toDTO)
-                .toList();
+                %s;
     }
 
     @Transactional(readOnly = true)
@@ -307,6 +411,7 @@ public class %sService {
     name,
     base_package,
     name,
+    collect_import,
     name,
     name,
     name,
@@ -317,6 +422,7 @@ public class %sService {
     name,
     create_setters,
     name,
+    collect_suffix,
     name,
     name,
     name,
@@ -332,7 +438,7 @@ public class %sService {
   )
 end
 
-local function build_controller(base_package, name, fields)
+local function build_controller(base_package, name, namespace)
   local endpoint = utils().entity_to_endpoint(name)
   return string.format(
     [[
@@ -341,7 +447,7 @@ package %s.controller;
 import %s.dto.%sRequestDTO;
 import %s.dto.%sResponseDTO;
 import %s.service.%sService;
-import jakarta.validation.Valid;
+import %s.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -392,6 +498,7 @@ public class %sController {
     name,
     base_package,
     name,
+    namespace,
     endpoint,
     name,
     name,
@@ -404,6 +511,42 @@ public class %sController {
     name,
     name
   )
+end
+
+function M.build_files(name, fields, options)
+  options = options or {}
+  local jutils = utils()
+  local base_package = options.base_package or jutils.get_base_package()
+  local java_version = options.java_version
+  if java_version == nil then
+    java_version = jutils.get_java_version()
+  end
+  local use_record = options.record
+  if use_record == nil then
+    use_record = (java_version or 0) >= RECORD_MIN_VERSION
+  end
+  local namespace = options.namespace or jutils.get_jakarta_namespace(java_version)
+  local lombok = options.lombok == true
+
+  return {
+    base_package = base_package,
+    files = {
+      { sub = "model", filename = name, content = build_entity(base_package, name, fields, lombok, namespace) },
+      { sub = "repository", filename = name .. "Repository", content = build_repository(base_package, name) },
+      {
+        sub = "dto",
+        filename = name .. "RequestDTO",
+        content = build_dto_request(base_package, name, fields, use_record),
+      },
+      {
+        sub = "dto",
+        filename = name .. "ResponseDTO",
+        content = build_dto_response(base_package, name, fields, use_record),
+      },
+      { sub = "service", filename = name .. "Service", content = build_service(base_package, name, fields, use_record) },
+      { sub = "controller", filename = name .. "Controller", content = build_controller(base_package, name, namespace) },
+    },
+  }
 end
 
 function M.generate_crud()
@@ -428,34 +571,16 @@ function M.generate_crud()
 
         local jutils = utils()
         local version = jutils.get_java_version()
-        if version and version < RECORD_MIN_VERSION then
-          vim.notify(
-            string.format("The CRUD generator uses records and needs Java %d+ (active: %d)", RECORD_MIN_VERSION, version),
-            vim.log.levels.ERROR
-          )
-          return
-        end
-
-        local base_package = jutils.get_base_package()
-        local project_root = jutils.get_project_root()
-        local lombok = use_lombok == "Yes"
-
-        local files = {
-          { sub = "model", filename = name, content = build_entity(base_package, name, fields, lombok) },
-          { sub = "repository", filename = name .. "Repository", content = build_repository(base_package, name) },
-          { sub = "dto", filename = name .. "RequestDTO", content = build_dto_request(base_package, name, fields) },
-          { sub = "dto", filename = name .. "ResponseDTO", content = build_dto_response(base_package, name, fields) },
-          { sub = "service", filename = name .. "Service", content = build_service(base_package, name, fields) },
-          {
-            sub = "controller",
-            filename = name .. "Controller",
-            content = build_controller(base_package, name, fields),
-          },
-        }
+        local use_record = (version or 0) >= RECORD_MIN_VERSION
+        local built = M.build_files(name, fields, {
+          record = use_record,
+          namespace = jutils.get_jakarta_namespace(),
+          lombok = use_lombok == "Yes",
+        })
 
         local created = {}
-        for _, file in ipairs(files) do
-          local dir = project_root .. "/src/main/java/" .. base_package:gsub("%.", "/") .. "/" .. file.sub
+        for _, file in ipairs(built.files) do
+          local dir = jutils.get_project_root() .. "/src/main/java/" .. built.base_package:gsub("%.", "/") .. "/" .. file.sub
           local content = file.content
           if version then
             content = string.format("// Generated for Java %d\n%s", version, content)
@@ -467,10 +592,11 @@ function M.generate_crud()
 
         vim.notify(
           string.format(
-            "Generated CRUD for %s (Java %s, %s Lombok)\nFiles: %s",
+            "Generated CRUD for %s (Java %s, %s, %s Lombok)\nFiles: %s",
             name,
             version or "?",
-            lombok and "with" or "without",
+            use_record and "records" or "classes",
+            use_lombok == "Yes" and "with" or "without",
             table.concat(created, ", ")
           ),
           vim.log.levels.INFO
