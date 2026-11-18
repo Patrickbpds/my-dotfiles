@@ -128,9 +128,10 @@ K          " Show documentation (hover)
 
 ### Sessions
 ```vim
-<leader>qs    " Save session
-<leader>ql    " Load session
-<leader>qd    " Delete session
+<leader>qs    " Restore session
+<leader>qS    " Select session
+<leader>ql    " Restore last session
+<leader>qd    " Don't save current session
 ```
 
 ## 📁 File Explorer (Neo-tree)
