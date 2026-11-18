@@ -27,7 +27,7 @@ A modern, feature-rich Neovim configuration optimized for Java development and f
 
 ### 🎯 Core Configuration
 - **LazyVim Base** - Modern Neovim distribution with batteries included
-- **50+ Plugins** - Curated selection for productivity and development
+- **Curated Plugins** - Selection for productivity and development
 - **Multi-Language Support** - Java, TypeScript, Python, Lua, and more
 - **Custom Keymaps** - Intuitive shortcuts with comprehensive learning guide
 
@@ -127,7 +127,7 @@ nvim
 ## ⚡ Key Features
 
 ### 🚀 Performance & UX
-- **⚡ Fast Startup** - Optimized lazy loading keeps startup under 100ms
+- **⚡ Fast Startup** - Optimized lazy loading keeps startup fast
 - **🎨 Beautiful UI** - Carefully crafted themes and modern interface
 - **📱 Responsive** - Works seamlessly on different screen sizes
 - **🔄 Auto Updates** - Plugins update automatically in background
