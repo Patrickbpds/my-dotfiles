@@ -134,12 +134,14 @@ This configuration is already set up. To start using it:
 
 ### Core Configuration
 - `init.lua` - Main entry point
+- `lazyvim.json` - LazyVim extras
 - `lua/config/lazy.lua` - Plugin management
 - `lua/config/options.lua` - Neovim options
 - `lua/config/keymaps.lua` - General keybindings
 
 ### Java/JDTLS Configuration
-- `lua/lang_servers/intellij-java-google-style.xml` - Google Java formatting
+- `lua/lang_servers/eclipse-java-google-style.xml` - Google Java formatting
+- `lua/plugins/lsp.lua` - JDTLS formatting, imports and JDK runtimes
 - `lua/plugins/java/` - Custom Java toolbox (build/run, profiles, migrations, dependencies, templates)
 - `lua/plugins/java/templates/` - File, Spring Boot and CRUD generators
 - `lua/plugins/java/keymaps-java.lua` - Keymaps under `<leader>j`
@@ -221,7 +223,7 @@ Then restart Neovim and reopen Java file.
 
 ### Formatting Not Working
 - Verify Google style XML file exists
-- Check JDTLS settings in `lua/config/jdtls.lua`
+- Check JDTLS settings in `lua/plugins/lsp.lua`
 
 ### Debug Not Working
 - Ensure Java debug adapter is installed
