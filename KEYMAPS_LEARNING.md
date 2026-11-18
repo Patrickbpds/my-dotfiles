@@ -50,25 +50,26 @@ This guide is a complete tutorial to learn and master the keymaps configured in 
 
 **Tip:** Use in visual mode to indent multiple lines without losing selection.
 
-## 🔍 Navigation and Search (Telescope)
+## 🔍 Navigation and Search
 
 ### File Search
 ```vim
-<leader>ff    " Find files (Telescope)
-<leader>fg    " Search text (grep) in all files
+<leader>ff    " Find files (fzf-lua)
+<leader>fg    " Find git files
 <leader>fb    " List open buffers
 <leader>fr    " Recent files
 ```
 
-**Mnemonic Sequence:** "Find Files", "Find Grep", "Find Buffers", "Find Recent"
+**Mnemonic Sequence:** "Find Files", "Find Git files", "Find Buffers", "Find Recent"
 
 **Exercise:** Use `<leader>ff` to open a file, then `<leader>fb` to return to buffers.
 
 ### Advanced Search
 ```vim
-<leader>sg    " Search text with grep
-<leader>sw    " Search word under cursor
-<leader>sG    " Search text in git files
+<leader>sg    " Search text with grep (root)
+<leader>sw    " Search word under cursor (root)
+<leader>sG    " Search text with grep (cwd)
+<leader>sh    " Search help pages
 ```
 
 ## 💻 Code Development (LSP)
