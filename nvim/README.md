@@ -28,13 +28,13 @@ A comprehensive Neovim setup optimized for Java and Spring Boot development, bui
 - **Custom Theme**: Catppuccin with Heimdall color scheme
 - **Advanced Status Line**: Lualine with LSP, diagnostics, and git integration
 - **File Explorer**: Neo-tree for project navigation
-- **Fuzzy Finding**: Telescope for fast file and symbol search
+- **Fuzzy Finding**: fzf-lua for fast file and symbol search
 
 ## 🚀 Quick Start
 
 ### Prerequisites
 - Neovim 0.11+ (included with LazyVim)
-- Java 17+ (for JDTLS and Spring Boot)
+- Java 21+ (JDTLS runtime; project JDKs are detected automatically)
 - Git (for plugin management)
 
 ### Installation
@@ -124,10 +124,11 @@ This configuration is already set up. To start using it:
 
 ### General
 ```vim
-<leader>ff  " Find files (Telescope)
-<leader>fg  " Live grep (Telescope)
-<leader>fb  " Find buffers (Telescope)
-<leader>fh  " Help tags (Telescope)
+<leader>ff  " Find files (fzf-lua)
+<leader>fg  " Find git files (fzf-lua)
+<leader>fb  " Find buffers (fzf-lua)
+<leader>fr  " Recent files (fzf-lua)
+<leader>sg  " Live grep (fzf-lua)
 ```
 
 ## 🔧 Configuration Files
@@ -160,7 +161,7 @@ This configuration is already set up. To start using it:
 ### v3.0 - Custom Java Toolbox
 - **Wrapper-aware builds**: prefers `./mvnw` / `./gradlew` when present
 - **Expanded build commands**: Maven test/verify/package and Gradle test/clean build under `<leader>jm*` / `<leader>jw*`
-- **Stop app**: `<leader>jrk` sends SIGINT and closes the app terminal
+- **Stop app**: `<leader>jrk` sends SIGINT to the running app
 - **Dependency management**: `add_dependency` resolves the latest version from Maven Central and auto-inserts into `pom.xml` / `build.gradle`
 - **CRUD generator**: automatic DTO<->Entity mapping and optional Lombok
 - **LSP via LazyVim**: JDTLS + Java debugging/testing provided by LazyVim's `lang.java` extra
@@ -203,7 +204,7 @@ This configuration is already set up. To start using it:
 
 ### Spring Boot Test
 1. Open a Spring Boot project
-2. Try `<leader>Jr` to run the application
+2. Try `<leader>jrs` to run the application
 3. Should start Spring Boot server
 
 ## 🔍 Troubleshooting
