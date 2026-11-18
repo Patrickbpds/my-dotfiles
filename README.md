@@ -159,7 +159,7 @@ nvim
 - 📊 **Status Line** - Rich status bar with LSP and Git info
 - 📁 **File Explorer** - Tree-style navigation with Git integration
 - 🔍 **Fuzzy Finding** - Fast file and content search
-- 📌 **Session Management** - Automatic workspace saving
+- 📌 **Session Management** - LazyVim workspace sessions
 
 ### 📚 Learning Resources
 
@@ -233,7 +233,6 @@ my-dotfiles/
 │           ├── 📄 lint.lua           # 🔍 Linting
 │           ├── 📄 lsp.lua            # 🗣️ Language server
 │           ├── 📄 neo-tree.lua       # 📁 File explorer
-│           ├── 📄 session.lua        # 💾 Session management
 │           ├── 📄 theme.lua          # 🎨 Color scheme
 │           ├── 📄 ui.lua             # 🖼️ UI enhancements
 │           ├── 📄 wakatime.lua       # ⏱️ Time tracking
