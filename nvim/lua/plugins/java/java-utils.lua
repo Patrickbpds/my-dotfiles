@@ -187,6 +187,174 @@ function M.has_java_version(minimum)
   return version ~= nil and version >= minimum
 end
 
+local function version_major(version)
+  if not version then
+    return nil
+  end
+  return tonumber(tostring(version):match("^(%d+)"))
+end
+
+function M.get_spring_boot_version()
+  local root = M.get_project_root()
+  local build_tool = M.get_build_tool()
+
+  if build_tool == "maven" then
+    local pom = M.read_file(root .. "/pom.xml")
+    if not pom then
+      return nil
+    end
+    return pom:match("<artifactId>%s*spring%-boot%-starter%-parent%s*</artifactId>%s*<version>%s*([%d%.]+)%s*</version>")
+      or pom:match("<artifactId>%s*spring%-boot%-dependencies%s*</artifactId>%s*<version>%s*([%d%.]+)%s*</version>")
+      or pom:match("<spring%-boot%.version>%s*([%d%.]+)%s*</spring%-boot%.version>")
+  elseif build_tool == "gradle" then
+    for _, file in ipairs({ "build.gradle", "build.gradle.kts" }) do
+      local content = M.read_file(root .. "/" .. file)
+      if content then
+        local version = content:match(
+          "id%s*%(?%s*['\"]org%.springframework%.boot['\"]%s*%)?%s*version%s*['\"]([%d%.]+)['\"]"
+        )
+          or content:match("spring%-boot%-gradle%-plugin[^\n]-version%s*['\"]([%d%.]+)['\"]")
+          or content:match("spring%-boot%-gradle%-plugin:([%d%.]+)")
+        if version then
+          return version
+        end
+      end
+    end
+  end
+
+  return nil
+end
+
+local function project_uses_import(import)
+  local root = M.get_project_root() .. "/src/main/java"
+  for _, file in ipairs(vim.fn.glob(root .. "/**/*.java", false, true)) do
+    local content = M.read_file(file)
+    if content and content:find(import, 1, true) then
+      return true
+    end
+  end
+  return false
+end
+
+function M.uses_jakarta(java_version)
+  local spring_major = version_major(M.get_spring_boot_version())
+  if spring_major then
+    return spring_major >= 3
+  end
+
+  local jakarta = project_uses_import("import jakarta.")
+  local javax = project_uses_import("import javax.")
+  if jakarta ~= javax then
+    return jakarta
+  end
+
+  return (java_version or M.get_java_version() or 0) >= 17
+end
+
+function M.get_jakarta_namespace(java_version)
+  return M.uses_jakarta(java_version) and "jakarta" or "javax"
+end
+
+local function java_home_version(path)
+  return parse_java_version(M.read_file(path .. "/release"))
+end
+
+function M.detect_jdks()
+  local jdks = {}
+  local seen = {}
+
+  local function add(path)
+    if not path or path == "" or path == vim.NIL then
+      return
+    end
+    path = vim.fn.fnamemodify(path, ":p"):gsub("/+$", "")
+    if vim.fn.isdirectory(path) == 0 then
+      return
+    end
+    local real = vim.uv.fs_realpath(path) or path
+    if seen[real] then
+      return
+    end
+    local version = java_home_version(path)
+    if version then
+      seen[real] = true
+      table.insert(jdks, { path = path, version = version })
+    end
+  end
+
+  add(vim.fn.getenv("JAVA_HOME"))
+
+  local patterns = {
+    vim.fn.expand("~/.sdkman/candidates/java") .. "/*",
+    vim.fn.expand("~/.jdks") .. "/*",
+    vim.fn.expand("~/.gradle/jdks") .. "/*",
+    vim.fn.expand("~/.local/share/mise/installs/java") .. "/*",
+    vim.fn.expand("~/.asdf/installs/java") .. "/*",
+    "/usr/lib/jvm/*",
+    "/usr/java/*",
+    "/opt/java/*",
+    "/Library/Java/JavaVirtualMachines/*/Contents/Home",
+  }
+
+  for _, pattern in ipairs(patterns) do
+    for _, path in ipairs(vim.fn.glob(pattern, false, true)) do
+      add(path)
+    end
+  end
+
+  table.sort(jdks, function(a, b)
+    if a.version == b.version then
+      return a.path < b.path
+    end
+    return a.version < b.version
+  end)
+
+  return jdks
+end
+
+local function runtime_name(major)
+  if major == 8 then
+    return "JavaSE-1.8"
+  end
+  return "JavaSE-" .. major
+end
+
+function M.get_jdk_runtimes()
+  local paths_by_major = {}
+  local java_home = vim.fn.getenv("JAVA_HOME")
+  if java_home == vim.NIL or java_home == "" then
+    java_home = nil
+  end
+  local home_real = java_home and (vim.uv.fs_realpath(java_home) or java_home)
+
+  for _, jdk in ipairs(M.detect_jdks()) do
+    local jdk_real = vim.uv.fs_realpath(jdk.path) or jdk.path
+    if (home_real and jdk_real == home_real) or not paths_by_major[jdk.version] then
+      paths_by_major[jdk.version] = jdk.path
+    end
+  end
+
+  local majors = {}
+  for major in pairs(paths_by_major) do
+    table.insert(majors, major)
+  end
+  table.sort(majors)
+
+  local project_major = M.get_java_version()
+  local default_major = paths_by_major[project_major] and project_major or majors[#majors]
+  local runtimes = {}
+
+  for _, major in ipairs(majors) do
+    local runtime = { name = runtime_name(major), path = paths_by_major[major] }
+    if major == default_major then
+      runtime.default = true
+    end
+    table.insert(runtimes, runtime)
+  end
+
+  return runtimes
+end
+
 function M.get_build_tool()
   local root = M.get_project_root()
   if vim.fn.filereadable(root .. "/pom.xml") == 1 then
