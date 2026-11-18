@@ -203,17 +203,15 @@ my-dotfiles/
 │   ├── 📄 lazyvim.json              # ⚙️ LazyVim configuration
 │   ├── 📄 lazy-lock.json            # 🔒 Plugin lockfile
 │   ├── 📄 stylua.toml               # 💅 Lua formatter config
-│   ├── 📄 .neoconf.json             # 🔧 Neoconf settings
 │   ├── 📄 .gitignore                # 🚫 Git ignore rules
 │   └── 📁 lua/
 │       ├── 📁 config/               # ⚙️ Core configurations
 │       │   ├── 📄 autocmds.lua      # 🤖 Auto commands
 │       │   ├── 📄 keymaps.lua       # ⌨️ Key mappings
 │       │   ├── 📄 lazy.lua          # 📦 Plugin manager
-│       │   ├── 📄 options.lua       # 🔧 Neovim options
-│       │   └── 📄 lazyvim.json      # ⚙️ LazyVim config
+│       │   └── 📄 options.lua       # 🔧 Neovim options
 │       ├── 📁 lang_servers/         # 🗣️ Language server configs
-│       │   └── 📄 intellij-java-google-style.xml
+│       │   └── 📄 eclipse-java-google-style.xml
 │       ├── 📁 plugins/              # 🔌 Plugin configurations
 │           ├── 📁 java/             # ☕ Java-specific plugins
 │           │   ├── 📄 build-run.lua
