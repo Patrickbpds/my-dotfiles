@@ -96,9 +96,4 @@ function M.setup()
   end
 end
 
-vim.api.nvim_create_autocmd("FileType", {
-  pattern = "java",
-  callback = M.setup,
-})
-
 return M
