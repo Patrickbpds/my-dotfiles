@@ -11,7 +11,7 @@ A comprehensive Neovim setup optimized for Java and Spring Boot development, bui
 - **Code Completion**: Intelligent completion for Java and Spring annotations
 - **Refactoring**: Extract methods, variables, constants with JDTLS
 - **Code Actions**: Quick fixes, imports organization, and more
-- **Session Management**: Automatic session saving per Git repository (inspired by brianrbrenner)
+- **Session Management**: LazyVim sessions with persistence.nvim
 
 ### Debugging & Testing
 - **DAP Integration**: Debug Java applications with breakpoints and stepping
@@ -106,11 +106,11 @@ This configuration is already set up. To start using it:
 
 ### Session Management
 ```vim
-<leader>ss  " Save current session
-<leader>sl  " Load session
-<leader>sd  " Delete session
+<leader>qs  " Restore session
+<leader>qS  " Select session
+<leader>ql  " Restore last session
+<leader>qd  " Don't save current session
 ```
-*Sessions are automatically saved per Git repository on exit*
 
 ### Debugging (DAP)
 ```vim
@@ -147,7 +147,6 @@ This configuration is already set up. To start using it:
 ### Plugins
 - `lua/plugins/` - All plugin configurations
 - `lua/plugins/java/` - Custom Java modules (build-run, profiles, migrations, dependencies, templates)
-- `lua/plugins/session.lua` - Auto-session management
 - `lua/plugins/lsp.lua` - LSP server management (jdtls via LazyVim's `lang.java` extra)
 
 ### Theme & UI
