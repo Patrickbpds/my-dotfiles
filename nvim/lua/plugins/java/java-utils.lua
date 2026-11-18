@@ -87,32 +87,39 @@ function M.get_base_package()
     end
   end
 
-  local package_name = M.detect_package()
-  return package_name:match("(.+)%.[^.]+$") or package_name
+  return M.detect_package()
 end
 
 function M.get_project_root()
-  local root = vim.fs.root(vim.fn.getcwd(), BUILD_MARKERS)
-  return root or vim.fn.getcwd()
+  local cwd = vim.fn.getcwd()
+  return vim.fs.root(0, BUILD_MARKERS) or vim.fs.root(cwd, BUILD_MARKERS) or cwd
+end
+
+local function normalize_java_version(value)
+  if not value then
+    return nil
+  end
+
+  value = tostring(value):gsub("_", ".")
+  local legacy = tonumber(value:match("^1%.(%d+)"))
+  if legacy then
+    return legacy
+  end
+
+  return tonumber(value:match("^(%d+)"))
 end
 
 local function parse_java_version(text)
   if not text then
     return nil
   end
+
   local version = text:match("JAVA_VERSION%s*=%s*\"([%d_.]+)\"")
   if version then
-    version = version:gsub("_", ".")
-    local major = tonumber(version:match("^(%d+)"))
-    if major and major >= 9 then
-      return major
-    end
-    local minor = tonumber(version:match("^1%.(%d+)"))
-    if minor then
-      return minor
-    end
+    return normalize_java_version(version)
   end
-  return tonumber(text:match("^(%d+)"))
+
+  return normalize_java_version(text)
 end
 
 local function java_version_from_release()
@@ -134,7 +141,7 @@ local function java_version_from_command()
   if not ok or vim.v.shell_error ~= 0 then
     return nil
   end
-  return tonumber(output:match('version%s*"(%d+)'))
+  return normalize_java_version(output:match('version%s*"([%d_.]+)"'))
 end
 
 local function java_version_from_build_file(build_tool)
@@ -142,9 +149,12 @@ local function java_version_from_build_file(build_tool)
   if build_tool == "maven" then
     local pom = M.read_file(root .. "/pom.xml")
     if pom then
-      local version = pom:match("<java%.version>%s*([%d]+)%s*<") or pom:match("<maven%.compiler%.release>%s*([%d]+)%s*<")
+      local version = pom:match("<java%.version>%s*([%d%.]+)%s*<")
+        or pom:match("<maven%.compiler%.release>%s*([%d%.]+)%s*<")
+        or pom:match("<maven%.compiler%.source>%s*([%d%.]+)%s*<")
+        or pom:match("<maven%.compiler%.target>%s*([%d%.]+)%s*<")
       if version then
-        return tonumber(version)
+        return normalize_java_version(version)
       end
     end
   elseif build_tool == "gradle" then
@@ -152,10 +162,12 @@ local function java_version_from_build_file(build_tool)
       local content = M.read_file(root .. "/" .. file)
       if content then
         local version = content:match("JavaLanguageVersion%.of%s*%(%s*(%d+)%s*%)")
-          or content:match("sourceCompatibility%s*=%s*['\"]?(%d+)")
-          or content:match("targetCompatibility%s*=%s*['\"]?(%d+)")
+          or content:match("sourceCompatibility%s*=%s*['\"]?([%d%.]+)")
+          or content:match("targetCompatibility%s*=%s*['\"]?([%d%.]+)")
+          or content:match("sourceCompatibility%s*=%s*JavaVersion%.VERSION_([%d_]+)")
+          or content:match("targetCompatibility%s*=%s*JavaVersion%.VERSION_([%d_]+)")
         if version then
-          return tonumber(version)
+          return normalize_java_version(version)
         end
       end
     end
@@ -168,7 +180,6 @@ function M.get_java_version()
   return java_version_from_build_file(build_tool)
     or java_version_from_release()
     or java_version_from_command()
-    or tonumber(string.match(_VERSION, "(%d+)"))
 end
 
 function M.has_java_version(minimum)
@@ -203,11 +214,7 @@ function M.get_build_command(build_tool)
 end
 
 function M.get_resources_dir()
-  local root = M.get_project_root()
-  if vim.fn.isdirectory(root .. "/src/main/resources") == 1 then
-    return root .. "/src/main/resources"
-  end
-  return vim.fn.getcwd() .. "/src/main/resources"
+  return M.get_project_root() .. "/src/main/resources"
 end
 
 function M.run_in_terminal(cmd)
