@@ -1,25 +1,17 @@
 return {
-  -- Configure Mason to ensure specific servers are installed
   {
     "mason-org/mason.nvim",
     opts = {
       ensure_installed = {
-        -- Your preferred servers
         "lua-language-server",
         "typescript-language-server",
-        "jdtls",
-        "java-debug-adapter",
-        "java-test",
       },
     },
   },
-
-  -- Configure nvim-lspconfig with custom servers
   {
     "neovim/nvim-lspconfig",
     opts = {
       servers = {
-        -- Lua Language Server configuration
         lua_ls = {
           settings = {
             Lua = {
@@ -35,9 +27,47 @@ return {
             },
           },
         },
-        -- TypeScript/JavaScript configuration
         vtsls = {},
       },
     },
+  },
+  {
+    "mfussenegger/nvim-jdtls",
+    opts = function(_, opts)
+      opts = opts or {}
+      local java_utils = require("plugins.java.java-utils")
+      local format_profile = vim.fn.stdpath("config") .. "/lua/lang_servers/eclipse-java-google-style.xml"
+
+      opts.settings = vim.tbl_deep_extend("force", opts.settings or {}, {
+        java = {
+          format = {
+            enabled = true,
+            settings = {
+              url = vim.uri_from_fname(format_profile),
+              profile = "GoogleStyle",
+            },
+          },
+          saveActions = {
+            organizeImports = true,
+          },
+          import = {
+            gradle = {
+              enabled = true,
+              wrapper = {
+                enabled = true,
+              },
+            },
+            maven = {
+              enabled = true,
+            },
+          },
+          configuration = {
+            runtimes = java_utils.get_jdk_runtimes(),
+          },
+        },
+      })
+
+      return opts
+    end,
   },
 }
