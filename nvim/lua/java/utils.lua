@@ -114,7 +114,7 @@ local function parse_java_version(text)
     return nil
   end
 
-  local version = text:match("JAVA_VERSION%s*=%s*\"([%d_.]+)\"")
+  local version = text:match('JAVA_VERSION%s*=%s*"([%d_.]+)"')
   if version then
     return normalize_java_version(version)
   end
@@ -177,9 +177,7 @@ end
 
 function M.get_java_version()
   local build_tool = M.get_build_tool()
-  return java_version_from_build_file(build_tool)
-    or java_version_from_release()
-    or java_version_from_command()
+  return java_version_from_build_file(build_tool) or java_version_from_release() or java_version_from_command()
 end
 
 function M.has_java_version(minimum)
@@ -203,18 +201,20 @@ function M.get_spring_boot_version()
     if not pom then
       return nil
     end
-    return pom:match("<artifactId>%s*spring%-boot%-starter%-parent%s*</artifactId>%s*<version>%s*([%d%.]+)%s*</version>")
-      or pom:match("<artifactId>%s*spring%-boot%-dependencies%s*</artifactId>%s*<version>%s*([%d%.]+)%s*</version>")
-      or pom:match("<spring%-boot%.version>%s*([%d%.]+)%s*</spring%-boot%.version>")
+    return pom:match(
+      "<artifactId>%s*spring%-boot%-starter%-parent%s*</artifactId>%s*<version>%s*([%d%.]+)%s*</version>"
+    ) or pom:match("<artifactId>%s*spring%-boot%-dependencies%s*</artifactId>%s*<version>%s*([%d%.]+)%s*</version>") or pom:match(
+      "<spring%-boot%.version>%s*([%d%.]+)%s*</spring%-boot%.version>"
+    )
   elseif build_tool == "gradle" then
     for _, file in ipairs({ "build.gradle", "build.gradle.kts" }) do
       local content = M.read_file(root .. "/" .. file)
       if content then
         local version = content:match(
           "id%s*%(?%s*['\"]org%.springframework%.boot['\"]%s*%)?%s*version%s*['\"]([%d%.]+)['\"]"
+        ) or content:match("spring%-boot%-gradle%-plugin[^\n]-version%s*['\"]([%d%.]+)['\"]") or content:match(
+          "spring%-boot%-gradle%-plugin:([%d%.]+)"
         )
-          or content:match("spring%-boot%-gradle%-plugin[^\n]-version%s*['\"]([%d%.]+)['\"]")
-          or content:match("spring%-boot%-gradle%-plugin:([%d%.]+)")
         if version then
           return version
         end

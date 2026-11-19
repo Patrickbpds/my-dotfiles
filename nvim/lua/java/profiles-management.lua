@@ -116,10 +116,7 @@ local function set_active_profile(profile)
     if content then
       local updated
       if content:match("spring:%s*\n%s*profiles:") then
-        updated = content:gsub(
-          "(spring:%s*\n%s*profiles:%s*\n%s*active:)%s*[%w_%-]+",
-          "%1 " .. profile
-        )
+        updated = content:gsub("(spring:%s*\n%s*profiles:%s*\n%s*active:)%s*[%w_%-]+", "%1 " .. profile)
       else
         updated = content .. "\nspring:\n  profiles:\n    active: " .. profile .. "\n"
       end

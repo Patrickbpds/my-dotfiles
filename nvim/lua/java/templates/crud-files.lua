@@ -595,8 +595,16 @@ function M.build_files(name, fields, options)
         filename = name .. "ResponseDTO",
         content = build_dto_response(base_package, name, fields, use_record),
       },
-      { sub = "service", filename = name .. "Service", content = build_service(base_package, name, fields, use_record) },
-      { sub = "controller", filename = name .. "Controller", content = build_controller(base_package, name, namespace) },
+      {
+        sub = "service",
+        filename = name .. "Service",
+        content = build_service(base_package, name, fields, use_record),
+      },
+      {
+        sub = "controller",
+        filename = name .. "Controller",
+        content = build_controller(base_package, name, namespace),
+      },
     },
   }
 end

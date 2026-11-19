@@ -86,7 +86,8 @@ for _, kind in ipairs({
   "Exception",
   "Exception Handler",
 }) do
-  local rendered = spring.render(kind, "User", { base_package = "com.example", java_version = 17, namespace = "jakarta" })
+  local rendered =
+    spring.render(kind, "User", { base_package = "com.example", java_version = 17, namespace = "jakarta" })
   assert(rendered and rendered.content and #rendered.content > 0, kind .. " rendered")
   assert(rendered.package:find("^com%.example%."), kind .. " package")
 end

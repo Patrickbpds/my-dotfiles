@@ -141,7 +141,8 @@ local function maven_dependency_exists(content, block, group_id, artifact_id)
   local text = table.concat(vim.list_slice(content, block.start, block.finish), "\n")
   local group = vim.pesc(group_id)
   local artifact = vim.pesc(artifact_id)
-  return text:match("<groupId>%s*" .. group .. "%s*</groupId>%s*<artifactId>%s*" .. artifact .. "%s*</artifactId>") ~= nil
+  return text:match("<groupId>%s*" .. group .. "%s*</groupId>%s*<artifactId>%s*" .. artifact .. "%s*</artifactId>")
+    ~= nil
 end
 
 local function insert_maven_dependency(group_id, artifact_id, version)

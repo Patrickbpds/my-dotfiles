@@ -163,7 +163,12 @@ local function dto_constructor(class_name, fields)
     table.insert(params, string.format("%s %s", field.type, field.name))
     table.insert(assignments, string.format("        this.%s = %s;", field.name, field.name))
   end
-  return string.format("    public %s(%s) {\n%s\n    }", class_name, table.concat(params, ", "), table.concat(assignments, "\n"))
+  return string.format(
+    "    public %s(%s) {\n%s\n    }",
+    class_name,
+    table.concat(params, ", "),
+    table.concat(assignments, "\n")
+  )
 end
 
 local function dto_accessors(fields)
@@ -283,7 +288,8 @@ local function render_spring_template(kind, name, options)
       { name = "name", type = "String" },
       { name = "email", type = "String" },
     }
-    content = use_record and dto_record(target_package, class_name, fields) or dto_class(target_package, class_name, fields)
+    content = use_record and dto_record(target_package, class_name, fields)
+      or dto_class(target_package, class_name, fields)
   elseif kind == "DTO Response" then
     class_name = name .. "ResponseDTO"
     local fields = {
@@ -291,7 +297,8 @@ local function render_spring_template(kind, name, options)
       { name = "name", type = "String" },
       { name = "email", type = "String" },
     }
-    content = use_record and dto_record(target_package, class_name, fields) or dto_class(target_package, class_name, fields)
+    content = use_record and dto_record(target_package, class_name, fields)
+      or dto_class(target_package, class_name, fields)
   elseif kind == "Mapper" then
     class_name = name .. "Mapper"
     content = string.format(spring_templates.mapper, target_package, class_name)
