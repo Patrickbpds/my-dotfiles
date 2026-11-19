@@ -1,0 +1,43 @@
+name: Neovim
+
+on:
+  push:
+    paths:
+      - "nvim/**"
+      - ".github/workflows/nvim.yml"
+  pull_request:
+    paths:
+      - "nvim/**"
+      - ".github/workflows/nvim.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install StyLua
+        uses: JohnnyMorganz/stylua-action@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          version: "2.5.2"
+          args: "false"
+
+      - name: StyLua
+        working-directory: nvim
+        run: stylua --check lua init.lua tests
+
+      - name: Install luacheck
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y liblua5.4-dev lua5.4 luarocks
+          sudo luarocks --lua-version=5.4 install luacheck
+
+      - name: Luacheck
+        working-directory: nvim
+        run: luacheck lua init.lua tests
