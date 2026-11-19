@@ -40,8 +40,7 @@ if next(colors) ~= nil then
   }
 end
 
-local function setup_catppuccin(new_colors, new_color_overrides)
-  new_colors = new_colors or colors
+local function setup_catppuccin(new_color_overrides)
   new_color_overrides = new_color_overrides or color_overrides
   require("catppuccin").setup({
     float = { transparent = false, solid = false },
@@ -337,7 +336,7 @@ end
 local function initialize_theme()
   if heimdall_ok and next(colors) ~= nil then
     -- Set up catppuccin with heimdall colors
-    setup_catppuccin(colors, color_overrides)
+    setup_catppuccin(color_overrides)
     -- Apply the colorscheme immediately
     vim.cmd(":silent! colorscheme catppuccin-mocha")
   end
@@ -350,7 +349,7 @@ return {
     priority = 1000, -- Load this before other plugins
     config = function()
       -- Apply heimdall colors if available, otherwise use defaults
-      setup_catppuccin(colors, color_overrides)
+      setup_catppuccin(color_overrides)
       if heimdall_ok and next(colors) ~= nil then
         vim.cmd(":silent! colorscheme catppuccin-mocha")
       end
@@ -426,8 +425,7 @@ return {
 
           vim.defer_fn(function()
             local reloaded_heimdall_ok, reloaded_heimdall_module = pcall(require, "user.heimdall")
-            local new_colors = {}
-            local new_color_overrides = {}
+            local new_colors, new_color_overrides
 
             if reloaded_heimdall_ok and type(reloaded_heimdall_module) == "table" then
               new_colors = reloaded_heimdall_module.colors or {}
@@ -453,7 +451,7 @@ return {
                 package.loaded["incline"] = nil
 
                 -- Reconfigure catppuccin and incline
-                setup_catppuccin(new_colors, new_color_overrides)
+                setup_catppuccin(new_color_overrides)
                 setup_incline(new_colors)
 
                 -- Update mode colors
