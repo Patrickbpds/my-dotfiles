@@ -92,6 +92,7 @@ This configuration is already set up. To start using it:
 <leader>jdt   " Dependency tree
 <leader>jdu   " Update dependencies
 <leader>jdv   " Check vulnerabilities
+<leader>j?    " List Java commands
 ```
 
 ### Java LSP (JDTLS via LazyVim)
@@ -143,13 +144,13 @@ This configuration is already set up. To start using it:
 ### Java/JDTLS Configuration
 - `lua/lang_servers/eclipse-java-google-style.xml` - Google Java formatting
 - `lua/plugins/lsp.lua` - JDTLS formatting, imports and JDK runtimes
-- `lua/plugins/java/` - Custom Java toolbox (build/run, profiles, migrations, dependencies, templates)
-- `lua/plugins/java/templates/` - File, Spring Boot and CRUD generators
-- `lua/plugins/java/keymaps-java.lua` - Keymaps under `<leader>j`
+- `lua/java/` - Custom Java toolbox (build/run, profiles, migrations, dependencies, templates)
+- `lua/java/templates/` - File, Spring Boot and CRUD generators
+- `lua/java/keymaps.lua` - Keymaps under `<leader>j`
+- `lua/java/commands.lua` - Commands and `:JavaCommands`
 
 ### Plugins
 - `lua/plugins/` - All plugin configurations
-- `lua/plugins/java/` - Custom Java modules (build-run, profiles, migrations, dependencies, templates)
 - `lua/plugins/lsp.lua` - LSP server management (jdtls via LazyVim's `lang.java` extra)
 
 ### Theme & UI
@@ -169,6 +170,7 @@ This configuration is already set up. To start using it:
 ### Key Changes
 - Removed legacy manual JDTLS setup (now handled by the LazyVim Java extra)
 - Reorganized Java keymaps under `<leader>j` with dedicated which-key groups (Run, Maven, Gradle, Database, Profile, Dependencies)
+- Added `:JavaCommands` and `<leader>j?` to list every Java command
 - Updated documentation to match the current modules
 
 ## 🏗️ Architecture

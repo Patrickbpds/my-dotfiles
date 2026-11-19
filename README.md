@@ -212,29 +212,30 @@ my-dotfiles/
 │       │   └── 📄 options.lua       # 🔧 Neovim options
 │       ├── 📁 lang_servers/         # 🗣️ Language server configs
 │       │   └── 📄 eclipse-java-google-style.xml
+│       ├── 📁 java/                 # ☕ Java-specific modules
+│       │   ├── 📄 actions.lua
+│       │   ├── 📄 build-run.lua
+│       │   ├── 📄 commands.lua
+│       │   ├── 📄 dependency-management.lua
+│       │   ├── 📄 init.lua
+│       │   ├── 📄 keymaps.lua
+│       │   ├── 📄 migrations.lua
+│       │   ├── 📄 profiles-management.lua
+│       │   ├── 📄 utils.lua
+│       │   └── 📁 templates/
+│       │       ├── 📄 crud-files.lua
+│       │       ├── 📄 java-files.lua
+│       │       └── 📄 springboot-files.lua
 │       ├── 📁 plugins/              # 🔌 Plugin configurations
-│           ├── 📁 java/             # ☕ Java-specific plugins
-│           │   ├── 📄 build-run.lua
-│           │   ├── 📄 dependency-management.lua
-│           │   ├── 📄 java.lua
-│           │   ├── 📄 java-utils.lua
-│           │   ├── 📄 keymaps-java.lua
-│           │   ├── 📄 migrations.lua
-│           │   ├── 📄 profiles-management.lua
-│           │   └── 📁 templates/
-│           │       ├── 📄 crud-files.lua
-│           │       ├── 📄 java-files.lua
-│           │       └── 📄 springboot-files.lua
-│           ├── 📄 better-ts-errors.lua # 🚨 Better TS errors
-│           ├── 📄 git.lua            # 🐙 Git integration
-│           ├── 📄 grapple.lua        # 🪝 Fast navigation
-│           ├── 📄 lint.lua           # 🔍 Linting
-│           ├── 📄 lsp.lua            # 🗣️ Language server
-│           ├── 📄 neo-tree.lua       # 📁 File explorer
-│           ├── 📄 theme.lua          # 🎨 Color scheme
-│           ├── 📄 ui.lua             # 🖼️ UI enhancements
-│           ├── 📄 wakatime.lua       # ⏱️ Time tracking
-│           └── 📄 which-key.lua      # ❓ Key hinting
+│       │   ├── 📄 better-ts-errors.lua
+│       │   ├── 📄 git.lua
+│       │   ├── 📄 grapple.lua
+│       │   ├── 📄 lsp.lua
+│       │   ├── 📄 neo-tree.lua
+│       │   ├── 📄 theme.lua
+│       │   ├── 📄 ui.lua
+│       │   ├── 📄 wakatime.lua
+│       │   └── 📄 which-key.lua
 ├── 📄 KEYMAPS_LEARNING.md           # 📚 Keymaps learning guide
 └── 📄 README.md                     # 📖 This documentation
 ```
@@ -243,7 +244,7 @@ my-dotfiles/
 
 - **`nvim/lua/config/`** - Core Neovim settings and LazyVim configuration
 - **`nvim/lua/plugins/`** - All plugin configurations and customizations
-- **`nvim/lua/plugins/java/`** - Java-specific tools and integrations
+- **`nvim/lua/java/`** - Java-specific tools and integrations
 - **`KEYMAPS_LEARNING.md`** - Interactive guide to learn all keyboard shortcuts
 
 ## 🔄 Management Commands
