@@ -431,10 +431,6 @@ function M.write_java_file(dir, class_name, content, version)
   local full_path = dir .. "/" .. class_name .. ".java"
 
   local java_version = version or M.get_java_version()
-  if java_version then
-    content = string.format("// Generated for Java %d\n%s", java_version, content)
-  end
-
   if not M.write_file(full_path, content) then
     vim.notify("Failed to write file: " .. full_path, vim.log.levels.ERROR)
     return
@@ -453,6 +449,144 @@ function M.to_pascal_case(str)
     return first:upper() .. rest
   end)
   return (pascal:gsub("%s", ""))
+end
+
+local JAVA_KEYWORDS = {
+  "abstract",
+  "assert",
+  "boolean",
+  "break",
+  "byte",
+  "case",
+  "catch",
+  "char",
+  "class",
+  "const",
+  "continue",
+  "default",
+  "do",
+  "double",
+  "else",
+  "enum",
+  "extends",
+  "false",
+  "final",
+  "finally",
+  "float",
+  "for",
+  "goto",
+  "if",
+  "implements",
+  "import",
+  "instanceof",
+  "int",
+  "interface",
+  "long",
+  "native",
+  "new",
+  "null",
+  "package",
+  "private",
+  "protected",
+  "public",
+  "return",
+  "short",
+  "static",
+  "strictfp",
+  "super",
+  "switch",
+  "synchronized",
+  "this",
+  "throw",
+  "throws",
+  "transient",
+  "true",
+  "try",
+  "void",
+  "volatile",
+  "while",
+}
+
+local function is_java_keyword(value)
+  for _, keyword in ipairs(JAVA_KEYWORDS) do
+    if value == keyword then
+      return true
+    end
+  end
+  return false
+end
+
+function M.is_valid_java_identifier(value)
+  if type(value) ~= "string" or not value:match("^[%a_$][%w_$]*$") then
+    return false
+  end
+  return not is_java_keyword(value)
+end
+
+local function is_balanced(value, open, close)
+  local depth = 0
+  for i = 1, #value do
+    local char = value:sub(i, i)
+    if char == open then
+      depth = depth + 1
+    elseif char == close then
+      depth = depth - 1
+      if depth < 0 then
+        return false
+      end
+    end
+  end
+  return depth == 0
+end
+
+function M.is_valid_java_type(value)
+  if type(value) ~= "string" then
+    return false
+  end
+
+  local field_type = vim.trim(value)
+  if field_type == "" or field_type:find("[{};=]") or field_type:find("%.%.") then
+    return false
+  end
+
+  while field_type:sub(-2) == "[]" do
+    field_type = field_type:sub(1, -3)
+  end
+
+  if field_type == "" or field_type:find("[%[%]]") then
+    return false
+  end
+  if not is_balanced(field_type, "<", ">") then
+    return false
+  end
+
+  local depth = 0
+  for i = 1, #field_type do
+    local char = field_type:sub(i, i)
+    if char == "<" then
+      depth = depth + 1
+    elseif char == ">" then
+      depth = depth - 1
+    elseif char == "," and depth == 0 then
+      return false
+    elseif char:match("%s") and depth == 0 then
+      return false
+    end
+  end
+
+  return field_type:match("^[%a_$][%w_$%.,<>%s]*$") ~= nil
+end
+
+function M.normalize_class_name(value)
+  if type(value) ~= "string" then
+    return nil
+  end
+
+  local name = M.to_pascal_case(vim.trim(value))
+  if not M.is_valid_java_identifier(name) then
+    return nil
+  end
+  return name
 end
 
 function M.entity_to_endpoint(name)

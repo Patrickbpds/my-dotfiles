@@ -320,11 +320,20 @@ function M.render(kind, name, options)
   if not SPRING_PACKAGES[kind] then
     return nil
   end
+  name = utils().normalize_class_name(name)
+  if not name then
+    return nil
+  end
   return render_spring_template(kind, name, options)
 end
 
 local function generate_spring_template(kind, name)
-  local rendered = M.render(kind, name)
+  local normalized = utils().normalize_class_name(name)
+  if not normalized then
+    vim.notify("Invalid class name: " .. name, vim.log.levels.ERROR)
+    return
+  end
+  local rendered = M.render(kind, normalized)
   if not rendered then
     vim.notify("Unknown template: " .. kind, vim.log.levels.ERROR)
     return

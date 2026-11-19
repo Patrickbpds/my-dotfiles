@@ -46,6 +46,11 @@ local RECORD_MIN_VERSION = 16
 
 local function generate_java_file(file_type, name)
   local jutils = utils()
+  name = jutils.normalize_class_name(name)
+  if not name then
+    vim.notify("Invalid class name", vim.log.levels.ERROR)
+    return
+  end
   local version = jutils.get_java_version()
 
   if file_type == "record" and version and version < RECORD_MIN_VERSION then

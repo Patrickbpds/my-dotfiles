@@ -546,7 +546,28 @@ end
 
 function M.build_files(name, fields, options)
   options = options or {}
+  fields = fields or {}
   local jutils = utils()
+
+  name = jutils.normalize_class_name(name)
+  if not name then
+    return nil, "invalid entity name"
+  end
+
+  local seen = {}
+  for _, field in ipairs(fields) do
+    if not jutils.is_valid_java_identifier(field.name) then
+      return nil, "invalid field name: " .. tostring(field.name)
+    end
+    if seen[field.name] then
+      return nil, "duplicate field: " .. field.name
+    end
+    seen[field.name] = true
+    if not jutils.is_valid_java_type(field.type) then
+      return nil, "invalid field type: " .. tostring(field.type)
+    end
+  end
+
   local base_package = options.base_package or jutils.get_base_package()
   local java_version = options.java_version
   if java_version == nil then
@@ -586,14 +607,18 @@ function M.generate_crud()
       return
     end
 
-    local name = utils().to_pascal_case(raw_name)
-    if name == "" then
+    local name = utils().normalize_class_name(raw_name)
+    if not name then
       vim.notify("Invalid entity name", vim.log.levels.ERROR)
       return
     end
 
     vim.ui.input({ prompt = "Fields (e.g., name:String,price:Double,active:Boolean): " }, function(fields_input)
-      local fields = parse_fields(fields_input)
+      local fields, errors = parse_fields(fields_input)
+      if #errors > 0 then
+        vim.notify("Invalid fields:\n" .. table.concat(errors, "\n"), vim.log.levels.ERROR)
+        return
+      end
 
       vim.ui.select({ "Yes", "No" }, { prompt = "Use Lombok (@Data)?" }, function(use_lombok)
         if not use_lombok then
@@ -603,20 +628,24 @@ function M.generate_crud()
         local jutils = utils()
         local version = jutils.get_java_version()
         local use_record = (version or 0) >= RECORD_MIN_VERSION
-        local built = M.build_files(name, fields, {
+        local built, build_error = M.build_files(name, fields, {
           record = use_record,
           namespace = jutils.get_jakarta_namespace(),
           lombok = use_lombok == "Yes",
         })
+        if not built then
+          vim.notify("Generation failed: " .. tostring(build_error), vim.log.levels.ERROR)
+          return
+        end
 
         local created = {}
         for _, file in ipairs(built.files) do
-          local dir = jutils.get_project_root() .. "/src/main/java/" .. built.base_package:gsub("%.", "/") .. "/" .. file.sub
-          local content = file.content
-          if version then
-            content = string.format("// Generated for Java %d\n%s", version, content)
-          end
-          if jutils.write_file(dir .. "/" .. file.filename .. ".java", content) then
+          local dir = jutils.get_project_root()
+            .. "/src/main/java/"
+            .. built.base_package:gsub("%.", "/")
+            .. "/"
+            .. file.sub
+          if jutils.write_file(dir .. "/" .. file.filename .. ".java", file.content) then
             table.insert(created, file.filename .. ".java")
           end
         end

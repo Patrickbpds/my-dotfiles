@@ -62,6 +62,10 @@ end)
 
 assert(spring.render("Unknown", "User", {}) == nil, "unknown template rejected")
 
+local normalized = spring.render("Entity", "user-name", { base_package = "com.example", java_version = 17 })
+assert(normalized and normalized.content:find("public class UserName", 1, true), "class name normalized")
+assert(spring.render("Entity", "123", {}) == nil, "invalid class name rejected")
+
 helpers.with_project({}, function()
   local entity = spring.render("Entity", "User", { base_package = "com.example", java_version = 8 })
   assert(entity.content:find("import javax.persistence.*", 1, true), "explicit java 8 uses javax")
