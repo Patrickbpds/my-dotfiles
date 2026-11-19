@@ -1,7 +1,7 @@
 local M = {}
 
 local function utils()
-  return require("plugins.java.java-utils")
+  return require("java.utils")
 end
 
 local java_templates = {

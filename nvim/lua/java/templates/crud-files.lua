@@ -3,23 +3,54 @@ local M = {}
 local RECORD_MIN_VERSION = 16
 
 local function utils()
-  return require("plugins.java.java-utils")
+  return require("java.utils")
+end
+
+local function split_fields(input)
+  local parts = {}
+  local depth = 0
+  local start = 1
+
+  for i = 1, #input do
+    local char = input:sub(i, i)
+    if char == "<" then
+      depth = depth + 1
+    elseif char == ">" then
+      depth = depth - 1
+    elseif char == "," and depth == 0 then
+      table.insert(parts, input:sub(start, i - 1))
+      start = i + 1
+    end
+  end
+
+  table.insert(parts, input:sub(start))
+  return parts
 end
 
 local function parse_fields(input)
   local fields = {}
+  local errors = {}
+
   if input and input ~= "" then
-    for field_def in input:gmatch("[^,]+") do
-      local field_name, field_type = field_def:match("([^:]+):([^:]+)")
-      if field_name and field_type then
-        table.insert(fields, {
-          name = vim.trim(field_name),
-          type = vim.trim(field_type),
-        })
+    for _, field_def in ipairs(split_fields(input)) do
+      local field_name, field_type = field_def:match("^%s*([^:]+):([^:]+)%s*$")
+      if not field_name or not field_type then
+        table.insert(errors, "invalid field: " .. vim.trim(field_def))
+      else
+        field_name = vim.trim(field_name)
+        field_type = vim.trim(field_type)
+        if not utils().is_valid_java_identifier(field_name) then
+          table.insert(errors, "invalid field name: " .. field_name)
+        elseif not utils().is_valid_java_type(field_type) then
+          table.insert(errors, "invalid field type: " .. field_type)
+        else
+          table.insert(fields, { name = field_name, type = field_type })
+        end
       end
     end
   end
-  return fields
+
+  return fields, errors
 end
 
 local function fields_block(fields)

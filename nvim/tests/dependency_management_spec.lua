@@ -3,7 +3,7 @@ vim.opt.rtp:prepend(root)
 package.path = root .. "/?.lua;" .. package.path
 
 local helpers = require("tests.helpers")
-local dependency = require("plugins.java.dependency-management")
+local dependency = require("java.dependency-management")
 
 helpers.with_project({
   ["pom.xml"] = table.concat({

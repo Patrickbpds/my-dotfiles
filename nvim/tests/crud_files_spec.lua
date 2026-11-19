@@ -3,7 +3,7 @@ vim.opt.rtp:prepend(root)
 package.path = root .. "/?.lua;" .. package.path
 
 local helpers = require("tests.helpers")
-local crud = require("plugins.java.templates.crud-files")
+local crud = require("java.templates.crud-files")
 
 local fields = {
   { name = "name", type = "String" },

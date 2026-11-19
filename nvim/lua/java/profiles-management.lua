@@ -4,7 +4,7 @@ local CREATE_NEW = "[ + Create New Profile ]"
 local COMMON_PROFILES = { "dev", "test", "prod", "local", "staging", "qa" }
 
 local function utils()
-  return require("plugins.java.java-utils")
+  return require("java.utils")
 end
 
 local function file_exists(filepath)

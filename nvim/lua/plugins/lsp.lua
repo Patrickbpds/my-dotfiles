@@ -35,15 +35,15 @@ return {
     "mfussenegger/nvim-jdtls",
     opts = function(_, opts)
       opts = opts or {}
-      local java_utils = require("plugins.java.java-utils")
-      local format_profile = vim.fn.stdpath("config") .. "/lua/lang_servers/eclipse-java-google-style.xml"
+      local java_utils = require("java.utils")
+      local format_profile = vim.api.nvim_get_runtime_file("lua/lang_servers/eclipse-java-google-style.xml", false)[1]
 
       opts.settings = vim.tbl_deep_extend("force", opts.settings or {}, {
         java = {
           format = {
             enabled = true,
             settings = {
-              url = vim.uri_from_fname(format_profile),
+              url = format_profile and vim.uri_from_fname(format_profile) or nil,
               profile = "GoogleStyle",
             },
           },

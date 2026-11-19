@@ -3,7 +3,7 @@ vim.opt.rtp:prepend(root)
 package.path = root .. "/?.lua;" .. package.path
 
 local helpers = require("tests.helpers")
-local utils = require("plugins.java.java-utils")
+local utils = require("java.utils")
 
 helpers.with_project({
   ["pom.xml"] = "<project><properties><java.version>1.8</java.version></properties></project>",

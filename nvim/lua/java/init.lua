@@ -1,9 +1,9 @@
 local M = {}
 
-local build_run = require("plugins.java.build-run")
-local dependency = require("plugins.java.dependency-management")
-local profiles = require("plugins.java.profiles-management")
-local migrations = require("plugins.java.migrations")
+local build_run = require("java.build-run")
+local dependency = require("java.dependency-management")
+local profiles = require("java.profiles-management")
+local migrations = require("java.migrations")
 
 M.spring_boot_run = build_run.spring_boot_run
 M.spring_boot_run_profile = build_run.spring_boot_run_profile
@@ -32,15 +32,15 @@ M.flyway_migrate = migrations.flyway_migrate
 M.create_migration = migrations.create_migration
 
 M.file_generator = function()
-  require("plugins.java.templates.java-files").file_generator()
+  require("java.templates.java-files").file_generator()
 end
 
 M.spring_boot_generator = function()
-  require("plugins.java.templates.springboot-files").spring_boot_generator()
+  require("java.templates.springboot-files").spring_boot_generator()
 end
 
 M.generate_crud = function()
-  require("plugins.java.templates.crud-files").generate_crud()
+  require("java.templates.crud-files").generate_crud()
 end
 
 return M

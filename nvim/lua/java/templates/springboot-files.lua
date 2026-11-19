@@ -3,7 +3,7 @@ local M = {}
 local RECORD_MIN_VERSION = 16
 
 local function utils()
-  return require("plugins.java.java-utils")
+  return require("java.utils")
 end
 
 local spring_templates = {}

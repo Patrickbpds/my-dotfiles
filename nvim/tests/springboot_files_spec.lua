@@ -3,7 +3,7 @@ vim.opt.rtp:prepend(root)
 package.path = root .. "/?.lua;" .. package.path
 
 local helpers = require("tests.helpers")
-local spring = require("plugins.java.templates.springboot-files")
+local spring = require("java.templates.springboot-files")
 
 helpers.with_project({
   ["pom.xml"] = "<project><properties><java.version>1.8</java.version></properties></project>",
