@@ -157,6 +157,17 @@ This configuration is already set up. To start using it:
 - `lua/plugins/theme.lua` - Catppuccin + Heimdall colors
 - `lua/user/heimdall.lua` - Custom color definitions
 
+## ✅ Development Checks
+
+```bash
+cd nvim
+stylua --check lua init.lua tests
+luacheck lua init.lua tests
+./tests/run.sh
+```
+
+CI runs StyLua and Luacheck for changes under `nvim/`.
+
 ## 🆕 Recent Updates
 
 ### v3.0 - Custom Java Toolbox
