@@ -398,8 +398,8 @@ return {
         end, 1)
       end
 
-      local last_mtime = 0
-      local is_reloading = false -- Prevent concurrent reloads
+      local last_mtime = vim.fn.getftime(heimdall_file)
+      local is_reloading = false
 
       local function check_and_reload_heimdall()
         -- Skip if already reloading
@@ -478,21 +478,47 @@ return {
         end
       end
 
-      local timer = vim.uv.new_timer()
-      local timer_interval_ms = 500
+      local watched_dir = vim.fs.dirname(heimdall_file)
+      local watched_name = vim.fs.basename(heimdall_file)
+      local debounce = vim.uv.new_timer()
+      local watcher = vim.uv.new_fs_event()
 
-      -- Start timer after a small delay to ensure everything is loaded
-      vim.defer_fn(function()
-        if timer and timer.start then
-          timer:start(timer_interval_ms, timer_interval_ms, vim.schedule_wrap(check_and_reload_heimdall))
+      local function schedule_check()
+        if debounce then
+          debounce:start(50, 0, vim.schedule_wrap(check_and_reload_heimdall))
         end
-      end, 100)
+      end
+
+      local watching = watcher ~= nil
+      if watcher then
+        watching = pcall(function()
+          watcher:start(
+            watched_dir,
+            {},
+            vim.schedule_wrap(function(err, filename)
+              if err or (filename and filename ~= watched_name) then
+                return
+              end
+              schedule_check()
+            end)
+          )
+        end)
+      end
+
+      if not watching and watcher then
+        watcher:close()
+        watcher = nil
+      end
 
       vim.api.nvim_create_autocmd("VimLeavePre", {
         callback = function()
-          if timer then
-            timer:stop()
-            timer:close()
+          if watcher then
+            watcher:stop()
+            watcher:close()
+          end
+          if debounce then
+            debounce:stop()
+            debounce:close()
           end
         end,
       })
