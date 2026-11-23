@@ -1,0 +1,270 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "update": "disable",
+  "watcher": {
+    "ignore": [
+      "**/.git/**",
+      "**/target/**",
+      "**/build/**",
+      "**/node_modules/**",
+      "**/coverage/**",
+      "**/dist/**"
+    ]
+  },
+  "permissions": [
+    {
+      "action": "shell",
+      "resource": "*",
+      "effect": "ask"
+    },
+    {
+      "action": "shell",
+      "resource": "git status *",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "git diff *",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "git log *",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "git show *",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "git branch *",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "rg *",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "fd *",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "git commit *",
+      "effect": "ask"
+    },
+    {
+      "action": "shell",
+      "resource": "git push *",
+      "effect": "ask"
+    },
+    {
+      "action": "shell",
+      "resource": "git reset --hard *",
+      "effect": "ask"
+    },
+    {
+      "action": "shell",
+      "resource": "rm -rf *",
+      "effect": "ask"
+    },
+    {
+      "action": "read",
+      "resource": "*",
+      "effect": "allow"
+    },
+    {
+      "action": "read",
+      "resource": "**/.env",
+      "effect": "ask"
+    },
+    {
+      "action": "read",
+      "resource": "**/.env.*",
+      "effect": "ask"
+    },
+    {
+      "action": "read",
+      "resource": "**/.env.example",
+      "effect": "allow"
+    },
+    {
+      "action": "read",
+      "resource": "**/*.pem",
+      "effect": "deny"
+    },
+    {
+      "action": "read",
+      "resource": "**/*.key",
+      "effect": "deny"
+    },
+    {
+      "action": "read",
+      "resource": "**/*.p12",
+      "effect": "deny"
+    },
+    {
+      "action": "read",
+      "resource": "**/*.pfx",
+      "effect": "deny"
+    },
+    {
+      "action": "read",
+      "resource": "**/*.jks",
+      "effect": "deny"
+    },
+    {
+      "action": "read",
+      "resource": "**/.ssh/**",
+      "effect": "deny"
+    },
+    {
+      "action": "read",
+      "resource": "**/.aws/**",
+      "effect": "deny"
+    },
+    {
+      "action": "read",
+      "resource": "**/.config/gcloud/**",
+      "effect": "deny"
+    },
+    {
+      "action": "read",
+      "resource": "**/.kube/**",
+      "effect": "deny"
+    },
+    {
+      "action": "read",
+      "resource": "**/.git-credentials",
+      "effect": "deny"
+    },
+    {
+      "action": "read",
+      "resource": "**/.npmrc",
+      "effect": "deny"
+    },
+    {
+      "action": "read",
+      "resource": "**/.pypirc",
+      "effect": "deny"
+    },
+    {
+      "action": "read",
+      "resource": "**/.docker/config.json",
+      "effect": "deny"
+    },
+    {
+      "action": "read",
+      "resource": "**/.config/gh/hosts.yml",
+      "effect": "deny"
+    },
+    {
+      "action": "edit",
+      "resource": "*",
+      "effect": "allow"
+    },
+    {
+      "action": "edit",
+      "resource": "**/.env",
+      "effect": "deny"
+    },
+    {
+      "action": "edit",
+      "resource": "**/.env.*",
+      "effect": "deny"
+    },
+    {
+      "action": "edit",
+      "resource": "**/.env.example",
+      "effect": "allow"
+    },
+    {
+      "action": "edit",
+      "resource": "**/.git/**",
+      "effect": "deny"
+    },
+    {
+      "action": "edit",
+      "resource": "**/target/**",
+      "effect": "deny"
+    },
+    {
+      "action": "edit",
+      "resource": "**/build/**",
+      "effect": "deny"
+    },
+    {
+      "action": "edit",
+      "resource": "**/node_modules/**",
+      "effect": "deny"
+    },
+    {
+      "action": "edit",
+      "resource": "**/.ssh/**",
+      "effect": "deny"
+    },
+    {
+      "action": "edit",
+      "resource": "**/.aws/**",
+      "effect": "deny"
+    },
+    {
+      "action": "edit",
+      "resource": "**/.kube/**",
+      "effect": "deny"
+    },
+    {
+      "action": "edit",
+      "resource": "**/.git-credentials",
+      "effect": "deny"
+    },
+    {
+      "action": "edit",
+      "resource": "**/.npmrc",
+      "effect": "deny"
+    },
+    {
+      "action": "edit",
+      "resource": "**/.pypirc",
+      "effect": "deny"
+    },
+    {
+      "action": "edit",
+      "resource": "**/.docker/config.json",
+      "effect": "deny"
+    },
+    {
+      "action": "edit",
+      "resource": "**/.config/gh/hosts.yml",
+      "effect": "deny"
+    },
+    {
+      "action": "external_directory",
+      "resource": "*",
+      "effect": "ask"
+    },
+    {
+      "action": "context7_resolve_library_id",
+      "resource": "*",
+      "effect": "allow"
+    },
+    {
+      "action": "context7_query_docs",
+      "resource": "*",
+      "effect": "allow"
+    }
+  ],
+  "mcp": {
+    "servers": {
+      "context7": {
+        "type": "remote",
+        "url": "https://mcp.context7.com/mcp",
+        "oauth": false
+      }
+    }
+  }
+}
