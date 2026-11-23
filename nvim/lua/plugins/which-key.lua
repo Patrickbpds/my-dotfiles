@@ -5,6 +5,8 @@ return {
       preset = "classic",
       spec = {
         { "<leader>a", group = "ai", icon = { icon = "", color = "yellow" } },
+        { "<leader>o", group = "opencode", icon = { icon = "󰚩", color = "green" } },
+        { "<leader>R", group = "rest", icon = { icon = "", color = "blue" } },
         { "<leader>z", group = "scripts", icon = { icon = "", color = "cyan" } },
         { "<leader>m", group = "grapple" },
         { "<leader>j", group = "java", icon = { icon = "☕", color = "orange" } },
