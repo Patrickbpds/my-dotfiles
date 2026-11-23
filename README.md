@@ -1,442 +1,296 @@
-# 🚀 Patrick's Neovim Configuration
+# Engineering Workstation Dotfiles
 
-[![GitHub stars](https://img.shields.io/github/stars/Patrickbpds/my-dotfiles.svg)](https://github.com/Patrickbpds/my-dotfiles/stargazers)
+Versioned Neovim and OpenCode configuration for Java/Spring Boot backend work.
+The desktop stack (Arch Linux, Hyprland, Zsh, Alacritty, Zen Browser, and the
+current theme) is intentionally left untouched; this repository covers the
+editor and AI-agent layers.
 
-A modern, feature-rich Neovim configuration optimized for Java development and full-stack programming. Built with LazyVim, featuring LSP integration, debugging capabilities, and a curated plugin ecosystem for maximum productivity.
+The setup is built on [LazyVim](https://github.com/LazyVim/LazyVim), with JDTLS
+for Java, `nvim-dap` for debugging, `rest.nvim` for HTTP/GraphQL requests, and
+OpenCode as the primary coding agent.
 
-## 🖼️ Preview
-### 🎨 Neovim Configuration Interface
-![Neovim Configuration](assets/nvim-config.png)
+## Preview
 
-### ☕ Development Environment
-![Java Development](assets/java.png)
+![Neovim configuration](assets/nvim-config.png)
 
-### 🔧 Neovim Interface
-![Java Features](assets/nvim-java.png)
+![Java development](assets/java.png)
 
-## ✨ Features
+![Java workflow](assets/nvim-java.png)
 
-- **🚀 LazyVim Integration** - Modern plugin management with lazy loading
-- **☕ Java Excellence** - Full JDTLS support with Spring Boot, Maven/Gradle integration
-- **🔧 LSP & DAP** - Language servers and debugging for multiple languages
-- **🎨 Beautiful UI** - Carefully selected themes and UI enhancements
-- **⚡ Performance** - Optimized startup times and memory usage
-- **📚 Learning Friendly** - Comprehensive keymaps guide included
+## What is included
 
-## 📋 What's Included
+- **Java/Spring Boot:** JDTLS, Lombok, Google Java Style, Maven/Gradle
+  wrapper-aware builds, JUnit through the JDTLS test runner, DAP debugging,
+  profiles, Flyway migrations, dependency management, and generators.
+- **AI workflow:** `opencode.nvim` for in-editor prompts, diffs, sessions, and
+  visual selections; Context7 as the only default MCP.
+- **HTTP/GraphQL:** `.http` files with request replay, environments, cookies,
+  and a rendered response pane.
+- **SQL:** Dadbod UI, SQL completion, and sqlfluff.
+- **Git:** Snacks Lazygit, gitsigns, Fugitive for `:Git`, and Octo for GitHub.
+- **Editor UX:** fzf-lua, Neo-tree, Blink, Supermaven, which-key, sessions, and
+  the existing Catppuccin/Heimdall theme.
+- **Deterministic maintenance:** pinned plugins, no automatic update checker,
+  lazy-loaded network-bound tools, and headless tests for the Java toolbox.
 
-### 🎯 Core Configuration
-- **LazyVim Base** - Modern Neovim distribution with batteries included
-- **Curated Plugins** - Selection for productivity and development
-- **Multi-Language Support** - Java, TypeScript, Python, Lua, and more
-- **Custom Keymaps** - Intuitive shortcuts with comprehensive learning guide
+## Architecture
 
-### ☕ Java Development Suite
-- **JDTLS Integration** - Full Java language server with Eclipse quality
-- **Spring Boot Tools** - Dedicated support for Spring Boot development
-- **Build Systems** - Maven and Gradle integration with one-click execution
-- **Testing Framework** - LazyVim's built-in testing integration for JUnit
-- **Code Actions** - LazyVim's LSP-powered refactoring and quick fixes
-- **Database Tools** - Flyway migration support and database integration
-
-### 🔧 Development Tools
-- **LSP Integration** - Intelligent code completion and diagnostics
-- **DAP Debugging** - Integrated debugging with breakpoints and variable inspection
-- **Git Integration** - Lazygit, inline blame, and diff viewing
-- **Code Formatting** - Prettier integration with automatic formatting on save
-- **Snippet Support** - Code snippets for faster development
-
-## 🚀 Installation
-
-### 📋 System Requirements
-
-#### Installation Commands
-
-**Ubuntu/Debian:**
-```bash
-# Required
-sudo apt update
-sudo apt install neovim git stow
-
+```text
+┌──────────────────────────────────────────────────────────────┐
+│ Neovim 0.12 + LazyVim                                        │
+│  editor · pickers · Git · sessions · UI                      │
+├──────────────────┬──────────────────┬────────────────────────┤
+│ Java             │ AI               │ HTTP / API             │
+│ jdtls            │ OpenCode         │ rest.nvim              │
+│ nvim-dap         │ Context7 MCP     │ .http / GraphQL        │
+│ Maven / Gradle   │ java-backend     │ environments           │
+└──────────────────┴──────────────────┴────────────────────────┘
 ```
 
-**macOS (Homebrew):**
-```bash
-# Required
-brew install neovim git stow
+### One primary tool per responsibility
 
+| Responsibility | Choice | Why |
+| --- | --- | --- |
+| Completion | Blink + Supermaven | Blink handles LSP/completion; Supermaven stays inline-only |
+| Java LSP | JDTLS | Native Java tooling, Lombok, DAP, and test support |
+| Java tests | JDTLS test runner | Avoids a duplicate `neotest-java` adapter |
+| XML/POM | LemMinX | Maven/Spring XML with explicit project-root markers |
+| Agent | OpenCode | Primary coding agent; completion remains separate |
+| Docs MCP | Context7 | Read-only, remote, no OAuth, no stored key |
+| REST | `rest.nvim` | Open source; Kulala now requires a commercial license token |
+| Git UI | Snacks Lazygit | One primary UI; gitsigns/Fugitive/Octo cover narrow cases |
+| SQL | Dadbod UI | Editor-native queries without a database MCP |
+
+### Deliberate exclusions
+
+- No `spring-boot.nvim`: the custom `lua/java/` toolbox owns Spring run,
+  profiles, generators, and migrations.
+- No `neotest-java`: the JDTLS test runner is the single Java test path.
+- No Kulala: its core binary requires a license token.
+- No additional completion provider or second AI agent.
+- No PostgreSQL, GitHub, Playwright, Sentry, or filesystem MCP by default.
+  Add one only when a workload needs it, with minimal permissions.
+
+## Validated baseline
+
+Validated on Arch Linux on **2026-11-23**:
+
+| Component | Version / commit |
+| --- | --- |
+| Neovim | 0.12.6 |
+| LazyVim | `99970099` |
+| lazy.nvim | `85c7ff37` |
+| JDTLS | 1.60.0 |
+| java-debug-adapter | 0.59.0 |
+| java-test | 0.47.0 |
+| LemMinX | 0.29.3 |
+| OpenCode CLI | 2.4.1 |
+| opencode.nvim | `3cab89df` |
+| rest.nvim | `714d5512` |
+| Java | Temurin 21.0.12.1 LTS |
+
+## Requirements
+
+- Neovim **0.11.2+** with LuaJIT (validated on 0.12.6).
+- JDK **21+** for JDTLS; project JDKs 17/21 are auto-detected.
+- Git, `ripgrep`, `fd`, `curl`, and `luarocks`.
+- OpenCode CLI with a connected provider.
+- Maven or Gradle, preferably via `./mvnw` / `./gradlew`.
+
+## Install
+
+Back up existing configuration before linking anything.
+
+### Link Neovim
+
+For a fresh machine, link the whole directory:
+
+```bash
+mkdir -p ~/.config
+ln -s ~/.dotfiles/nvim ~/.config/nvim
 ```
 
-**Arch Linux:**
-```bash
-# Required
-sudo pacman -S neovim git stow
+The current machine uses per-file links instead; both layouts are valid. Do not
+copy generated files over the repository.
 
-```
-
-### 🛠️ Quick Install
+Start Neovim once:
 
 ```bash
-# Clone repository (you can choose any directory)
-git clone https://github.com/Patrickbpds/my-dotfiles.git ~/.dotfiles
-cd ~/.dotfiles
-
-# Alternative: clone to current directory
-# git clone https://github.com/Patrickbpds/my-dotfiles.git .
-# cd my-dotfiles
-
-# Backup existing config (recommended)
-mkdir -p ~/.config-backup
-cp -r ~/.config/nvim ~/.config-backup/ 2>/dev/null || true
-
-# Install configuration
-stow -v -R -t ~/.config nvim
-
-# Install plugins (first run will take longer)
-nvim --headless -c 'Lazy sync' +qa
-```
-
-### 📦 Manual Installation (Alternative)
-
-If you prefer not to use GNU Stow:
-
-```bash
-# Clone and copy files
-git clone https://github.com/Patrickbpds/my-dotfiles.git ~/.dotfiles
-cp -r ~/.dotfiles/nvim ~/.config/
-
-# Install plugins
 nvim
-# Run :Lazy sync inside Neovim
 ```
 
-### 🎯 First Run
+lazy.nvim installs pinned plugins, and Mason installs the servers declared in
+`nvim/lua/plugins/lsp.lua`. If needed:
+
+```vim
+:MasonInstall jdtls java-debug-adapter java-test lemminx
+```
+
+### Link OpenCode
+
+OpenCode’s config directory also contains local TUI/plugin state, so link only
+the repository-owned files:
 
 ```bash
-# Open Neovim
-nvim
-
-# Install LSP servers (inside Neovim)
-:MasonInstall jdtls typescript-language-server
-
-# Verify installation
-:checkhealth
-:Lazy sync
+mkdir -p ~/.config/opencode
+ln -sfn ~/.dotfiles/opencode/opencode.json ~/.config/opencode/opencode.json
+ln -sfn ~/.dotfiles/opencode/AGENTS.md ~/.config/opencode/AGENTS.md
+ln -sfn ~/.dotfiles/opencode/skills ~/.config/opencode/skills
 ```
 
-## ⚡ Key Features
+Do not symlink the whole `~/.config/opencode` directory; it would hide the
+existing local plugins and TUI configuration.
 
-### 🚀 Performance & UX
-- **⚡ Fast Startup** - Optimized lazy loading keeps startup fast
-- **🎨 Beautiful UI** - Carefully crafted themes and modern interface
-- **📱 Responsive** - Works seamlessly on different screen sizes
-- **🔄 Auto Updates** - Plugins update automatically in background
-
-### 💻 Development Experience
-
-#### LSP Integration
-- ✅ **Multi-language Support** - Java, TypeScript, Python, Lua, Go, Rust
-- ✅ **Intelligent Completion** - Context-aware code suggestions
-- ✅ **Real-time Diagnostics** - Instant error checking and warnings
-- ✅ **Code Actions** - Quick fixes and refactoring tools
-
-#### Java Excellence
-- ☕ **JDTLS Server** - Full Eclipse-quality Java support with LazyVim integration
-- 🚀 **Spring Boot** - Dedicated Spring Boot development tools
-- 🔨 **Build Integration** - Maven/Gradle with one-click execution
-- 🧪 **Testing** - LazyVim's built-in testing framework for seamless JUnit integration
-- ⚙️ **Code Actions** - LazyVim's LSP-powered refactoring and code actions
-- 🗄️ **Database Tools** - Flyway migrations and database integration
-
-#### Debugging & Testing
-- 🐛 **DAP Integration** - Debug directly in Neovim
-- 🔴 **Breakpoints** - Visual breakpoint management
-- 👀 **Variable Inspection** - Watch expressions and variables
-- 🧪 **Test Runner** - Integrated testing framework
-
-### 🎨 UI & Navigation
-- 🌈 **Themes** - Multiple themes with automatic switching
-- 📊 **Status Line** - Rich status bar with LSP and Git info
-- 📁 **File Explorer** - Tree-style navigation with Git integration
-- 🔍 **Fuzzy Finding** - Fast file and content search
-- 📌 **Session Management** - LazyVim workspace sessions
-
-### 📚 Learning Resources
-
-📖 **[Complete Keymaps Learning Guide](KEYMAPS_LEARNING.md)** - Interactive guide to master all shortcuts
-
-🎯 **Pro Tips:**
-- Use `<leader>?` to see all available keymaps
-- Press `<leader>` and wait to see WhichKey hints
-- Check `:help lazyvim` for LazyVim documentation
-
-## 🔧 Customization
-
-### Modifying Configurations
-Edit files directly in the stow directories:
-```bash
-# Edit Neovim config
-vim nvim/lua/config/options.lua
-
-# Restow to apply changes
-stow -R -t ~/.config nvim
-```
-
-### Adding New Configurations
-```bash
-# Create new package directory
-mkdir -p mypackage/.config/myapp
-
-# Add your config files
-cp ~/.config/myapp/config mypackage/.config/myapp/
-
-# Stow the new package
-stow mypackage
-```
-
-## 📁 Project Structure
-
-```
-my-dotfiles/
-├── 📁 nvim/                        # 🏠 Complete Neovim configuration
-│   ├── 📄 init.lua                  # 🚀 Main initialization file
-│   ├── 📄 lazyvim.json              # ⚙️ LazyVim configuration
-│   ├── 📄 lazy-lock.json            # 🔒 Plugin lockfile
-│   ├── 📄 stylua.toml               # 💅 Lua formatter config
-│   ├── 📄 .gitignore                # 🚫 Git ignore rules
-│   └── 📁 lua/
-│       ├── 📁 config/               # ⚙️ Core configurations
-│       │   ├── 📄 autocmds.lua      # 🤖 Auto commands
-│       │   ├── 📄 keymaps.lua       # ⌨️ Key mappings
-│       │   ├── 📄 lazy.lua          # 📦 Plugin manager
-│       │   └── 📄 options.lua       # 🔧 Neovim options
-│       ├── 📁 lang_servers/         # 🗣️ Language server configs
-│       │   └── 📄 eclipse-java-google-style.xml
-│       ├── 📁 java/                 # ☕ Java-specific modules
-│       │   ├── 📄 actions.lua
-│       │   ├── 📄 build-run.lua
-│       │   ├── 📄 commands.lua
-│       │   ├── 📄 dependency-management.lua
-│       │   ├── 📄 init.lua
-│       │   ├── 📄 keymaps.lua
-│       │   ├── 📄 migrations.lua
-│       │   ├── 📄 profiles-management.lua
-│       │   ├── 📄 utils.lua
-│       │   └── 📁 templates/
-│       │       ├── 📄 crud-files.lua
-│       │       ├── 📄 java-files.lua
-│       │       └── 📄 springboot-files.lua
-│       ├── 📁 plugins/              # 🔌 Plugin configurations
-│       │   ├── 📄 better-ts-errors.lua
-│       │   ├── 📄 git.lua
-│       │   ├── 📄 grapple.lua
-│       │   ├── 📄 lsp.lua
-│       │   ├── 📄 neo-tree.lua
-│       │   ├── 📄 theme.lua
-│       │   ├── 📄 ui.lua
-│       │   ├── 📄 wakatime.lua
-│       │   └── 📄 which-key.lua
-├── 📄 KEYMAPS_LEARNING.md           # 📚 Keymaps learning guide
-└── 📄 README.md                     # 📖 This documentation
-```
-
-### 🎯 Key Directories Explained
-
-- **`nvim/lua/config/`** - Core Neovim settings and LazyVim configuration
-- **`nvim/lua/plugins/`** - All plugin configurations and customizations
-- **`nvim/lua/java/`** - Java-specific tools and integrations
-- **`KEYMAPS_LEARNING.md`** - Interactive guide to learn all keyboard shortcuts
-
-## 🔄 Management Commands
-
-### Useful Stow Commands
+Verify:
 
 ```bash
-# Install/link configurations
-stow -t ~/.config nvim
-
-# Remove/unlink configurations
-stow -D -t ~/.config nvim
-
-# Reinstall (useful after editing)
-stow -R -t ~/.config nvim
-
-# Simulate actions (dry run)
-stow -n -t ~/.config nvim
-
-# Verbose output
-stow -v -t ~/.config nvim
+opencode debug config
+opencode mcp list
 ```
 
-### Maintenance
+Inside Neovim:
+
+```vim
+:Lazy load opencode.nvim
+:checkhealth opencode
+```
+
+## Repository layout
+
+```text
+.
+├── nvim/
+│   ├── init.lua
+│   ├── lazyvim.json
+│   ├── lazy-lock.json
+│   ├── lua/config/              # core options, keymaps, autocmds, lazy.nvim
+│   ├── lua/java/                # Java/Spring toolbox and generators
+│   ├── lua/lang_servers/        # Google Java Style profile
+│   ├── lua/plugins/             # plugin specs (LSP, REST, OpenCode, Git, UI)
+│   ├── lua/user/heimdall.lua    # generated theme palette
+│   └── tests/                   # headless specs for the Java toolbox
+├── opencode/
+│   ├── opencode.json            # global permissions, MCP, watcher ignores
+│   ├── AGENTS.md                # global working agreement
+│   ├── skills/java-backend/     # repository-owned Java/Spring skill
+│   └── README.md                # OpenCode architecture and security notes
+├── KEYMAPS_LEARNING.md          # keymap tutorial
+└── assets/                      # screenshots
+```
+
+Detailed documentation:
+
+- [`nvim/README.md`](nvim/README.md) — editor, Java, AI, REST, SQL, validation.
+- [`opencode/README.md`](opencode/README.md) — agent policy, MCP, skills.
+- [`KEYMAPS_LEARNING.md`](KEYMAPS_LEARNING.md) — progressive keymap guide.
+
+## Common commands
+
+### Neovim
+
+```vim
+:Lazy check                 " review plugin updates
+:Lazy update                " apply updates
+:Lazy profile               " startup profile
+:Mason                      " installed/available servers
+:checkhealth                " full health report
+:JavaCommands               " list every Java command
+```
+
+### OpenCode
 
 ```bash
-# Check for broken symlinks
-find ~ -xtype l -print
-
-# Update from git
-git pull origin main
-
-# Restow after updates
-stow -R -t ~/.config nvim
-
-# Clean broken symlinks
-find ~ -maxdepth 1 -name ".*" -type l ! -exec test -e {} \; -delete 2>/dev/null || true
+opencode                       # start the TUI
+opencode mcp list              # MCP connection status
+opencode debug config          # resolved config documents
+opencode reload                # reload config in the running service
 ```
 
-## 🔧 Troubleshooting
+### Validation
 
-### 🚨 Common Issues & Solutions
-
-#### LSP Not Working
 ```bash
-# Check LSP status
-:LspInfo
-
-# Install missing servers
-:MasonInstall java-language-server jdtls typescript-language-server
-
-# Restart LSP
-:LspRestart
+cd nvim
+stylua --check lua init.lua tests
+luacheck lua init.lua tests
+./tests/run.sh
 ```
 
-#### Java Development Issues
-```bash
-# Check JDTLS status
-:JdtShowLogs
+The CI workflow under `.github/workflows/nvim.yml` runs StyLua and Luacheck.
 
-# Refresh project
-:JdtRefresh
+## Verified behavior
 
-# Recompile
-:JdtCompile
-```
+The following checks were executed locally and passed:
 
-#### Plugin Problems
-```bash
-# Sync all plugins
-:Lazy sync
+- StyLua 2.5.2 and Luacheck 1.2.0: 0 warnings, 0 errors across 34 files;
+  Markdown lint: 0 issues in 4 documents.
+- `./tests/run.sh`: all Java toolbox specs passed.
+- Warm startup: 28–36 ms in quiet runs; cold first run: 129 ms.
+- JDTLS attach, `:JdtCompile`, `:JavaCommands`, LemMinX on `pom.xml`, and
+  2-space Google-style formatting.
+- `<leader>tt` executed two JUnit tests successfully through the JDTLS DAP
+  runner.
+- Full DAP session in a disposable Java 21 project: breakpoint hit at line 8,
+  Step Over advanced to line 9, Continue terminated the session, and Locals
+  were readable (`a=40`, `b=2`, `sum=42`).
+- Maven 4.0.0-rc-6: `mvn test` and `mvn package` passed on Java 21 (2 JUnit
+  tests, jar built). A disposable Gradle 8.14.3 wrapper project passed
+  `./gradlew test` and `./gradlew build`; Gradle was not installed system-wide.
+- `rest.nvim` completed a real local HTTP request and rendered status, headers,
+  body, timing, and size.
+- `:checkhealth opencode` passed with OpenCode 2.4.1. `:checkhealth rest-nvim`
+  passed after opening an `.http` buffer (the plugin is filetype-lazy).
+- Context7 connected with two tools; live MCP calls retrieved official Spring
+  Boot 3.5 and Java SE 21 documentation. `opencode debug config` shows the
+  expected `mcp.servers.context7` entry.
 
-# Clear plugin cache
-:Lazy clean
+Not verified: a real Spring Boot application launch, Kafka/Redis/PostgreSQL
+integration tests, Kubernetes/AWS operations, and model-driven skill invocation.
+The last was blocked by the configured provider's insufficient-credit response
+(HTTP 402), not by a configuration failure.
 
-# Reinstall all plugins
-:Lazy restore
-```
+## Security model
 
-#### Performance Issues
-```bash
-# Check health
-:checkhealth
+- No tokens, API keys, credentials, or local database URLs are versioned.
+- OpenCode shell commands ask by default. Read-only Git and `rg`/`fd` are
+  allowlisted; `git commit`, `git push`, `git reset --hard`, and `rm -rf` ask.
+- Reads of `.env` files ask; private keys/certificates, SSH material, AWS
+  credentials, gcloud config, kubeconfig, `.git-credentials`, `.npmrc`,
+  `.pypirc`, Docker auth, and GitHub CLI hosts are denied.
+- Edits to `.env*`, `.git`, `target`, `build`, `node_modules`, and the credential
+  paths above are denied (`.env.example` is allowed).
+- Context7 is the only default MCP and is limited to its two documentation
+  tools.
+- Permissions are defense in depth, not a sandbox.
 
-# Profile startup time
-:StartupTime
+## Performance notes
 
-# Disable heavy plugins temporarily
-:LazyExtras
-```
+- The LazyVim update checker is disabled; updates are explicit.
+- WakaTime is lazy-loaded because its CLI setup is network-bound (previously
+  ~88 ms).
+- Fugitive, `better-ts-errors`, `rest.nvim`, and `opencode.nvim` are loaded only
+  when needed.
+- One picker (fzf-lua), one Git UI (Lazygit), one REST client, and one Java test
+  runner avoid duplicate work.
+- The OpenCode background service is native to OpenCode; Neovim does not start
+  permanent background processes of its own.
 
-#### UI/Theme Problems
-```bash
-# Reload theme
-:colorscheme <theme-name>
+## Known warnings and next improvements
 
-# Check syntax highlighting
-:syntax on
+- The current full `:checkhealth` report includes optional-tool warnings
+  (LaTeX/Mermaid/image preview, missing `wget`, pip, Go, PHP, Julia). These do
+  not affect Java or the editor workflow.
+- Snacks health reports disabled modules because fzf-lua and Neo-tree are the
+  chosen UI; this is intentional.
+- The Go LazyVim extra is enabled but the Go toolchain is not installed. Remove
+  the extra or install Go if that language is used.
+- CI currently lints but does not run the headless Java specs. Add a pinned
+  Neovim step before relying on CI for behavior changes.
+- GraphQL requests are supported through `.http`; there is no dedicated gRPC
+  client or Kubernetes plugin. Those workflows use Java tooling and the
+  `java-backend` skill.
+- Consider adding a project-scoped `opencode.json` only when a repository needs
+  extra MCPs or stricter permissions.
 
-# Reload UI
-:lua require('lazy').reload('ui')
-```
+## License
 
-### 🔍 Advanced Debugging
-
-#### Debug Mode
-```bash
-# Start Neovim in debug mode
-NVIM_DEBUG=1 nvim
-
-# Check LazyVim debug info
-:Lazy profile
-```
-
-#### Log Files
-```bash
-# LSP logs
-~/.local/state/nvim/lsp.log
-
-# LazyVim logs
-~/.local/state/nvim/lazy.log
-
-# Neovim logs
-~/.local/state/nvim/log
-```
-
-#### System Information
-```bash
-# Neovim version and build
-nvim --version
-
-# Check dependencies
-:checkhealth provider
-
-# Plugin status
-:Lazy
-```
-
-### 🛟 Getting Help
-
-1. **Check the logs** - Most issues are logged with detailed error messages
-2. **Update everything** - Run `:Lazy sync` and restart Neovim
-3. **Minimal config** - Test with `nvim --clean` to isolate issues
-4. **Community** - Check [Neovim Discourse](https://neovim.discourse.group/) or [LazyVim issues](https://github.com/LazyVim/LazyVim/issues)
-
-### 🔄 Recovery Steps
-
-If everything breaks:
-```bash
-# Remove configuration
-rm -rf ~/.config/nvim
-
-# Restore backup
-cp -r ~/.config-backup/nvim ~/.config/
-
-# Reinstall
-stow -R .config
-```
-
-
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to:
-
-- 🐛 **Report Issues** - Found a bug? Let me know!
-- 💡 **Suggest Features** - Have an idea? Share it!
-- 🔧 **Submit PRs** - Want to contribute code? Awesome!
-- 📖 **Improve Docs** - Help make the documentation better
-
-## 🙏 Acknowledgments
-
-### Core Technologies
-- **[Neovim](https://neovim.io/)** - The best text editor
-- **[LazyVim](https://github.com/LazyVim/LazyVim)** - Amazing distribution
-- **[GNU Stow](https://www.gnu.org/software/stow/)** - Perfect dotfile management
-
-### Community & Inspiration
-- **LazyVim Community** - For the incredible ecosystem
-- **Neovim Community** - For pushing the boundaries
-- **Dotfile Enthusiasts** - For sharing knowledge and inspiration
-
----
-
-*"The best tools are invisible. They get out of your way and let you focus on what matters - creating amazing software."*
-
----
-
-## 📞 Support
-
-- 🐙 **GitHub Issues**: [Issues](https://github.com/Patrickbpds/my-dotfiles/issues)
-- 💬 **Discussions**: [Discussions](https://github.com/Patrickbpds/my-dotfiles/discussions)
-
----
-
-**⭐ Star this repo if you find it useful!**
+This configuration is provided as-is for development use.

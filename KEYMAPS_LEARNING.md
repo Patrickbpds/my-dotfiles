@@ -1,357 +1,447 @@
-# 📚 Neovim Keymaps Learning Guide
+# Neovim Keymaps Learning Guide
 
-This guide is a complete tutorial to learn and master the keymaps configured in my Neovim setup. Each section includes explanations, practical examples, and memorization tips.
+A progressive guide to the keymaps in this workstation. `<leader>` is **Space**.
+LazyVim provides most defaults; this repository adds the Java toolbox, OpenCode,
+REST, and a few editor conveniences.
 
-## 🏠 General Keymaps (Always Available)
+Use `<leader>?` or wait after pressing `<leader>` to let which-key show the
+available continuations. Use `:verbose map <key>` when a mapping is unclear.
 
-### Basic Navigation
+## 1. Basics
+
+### Movement and editing
+
 ```vim
-<C-h>    " Move focus to left window
-<C-j>    " Move focus to lower window
-<C-k>    " Move focus to upper window
-<C-l>    " Move focus to right window
+h j k l          " Character movement
+w b              " Word forward/back
+0 $              " Start/end of line
+gg G             " Top/bottom of file
+i a              " Insert/append
+o O              " New line below/above
+x dd             " Delete character/line
+u <C-r>          " Undo/redo
 ```
 
-**Memorization Tip:** Think of HJKL as an inverted arrow:
-- H: Left (←)
-- J: Down (↓)
-- K: Up (↑)
-- L: Right (→)
+### Search
 
-**Exercise:** Open two vertical splits (`:vsplit`) and practice navigating between them.
-
-### Window Management
 ```vim
-<leader>wv    " Split window vertically
-<leader>wh    " Split window horizontally
+/pattern         " Search forward
+?pattern         " Search backward
+n N              " Next/previous match
+* #              " Search word under cursor
+<Esc>            " Clear search highlights
 ```
 
-**Tip:** `<leader>w` + `v` (vertical) or `h` (horizontal).
+### Windows
 
-### Clear Highlights
 ```vim
-<Esc>         " Remove search highlights
+<C-h> <C-j> <C-k> <C-l>   " Move focus between windows
+<leader>wv                 " Vertical split
+<leader>wh                 " Horizontal split
+<leader>wd                 " Delete window
 ```
 
-**When to use:** After searching with `/` or `?`.
+### Terminal and indentation
 
-### Terminal Mode
 ```vim
-<Esc><Esc>    " Exit terminal mode
+<C-/>            " Toggle/focus the root terminal
+<leader>ft       " Terminal in project root
+<leader>fT       " Terminal in cwd
+<Esc><Esc>       " Leave terminal mode
+< >              " Indent left/right, keep selection (visual mode)
 ```
 
-**Tip:** In integrated terminal, press Esc twice to return to normal mode.
+## 2. Files, buffers, and search
 
-### Visual Indentation
+### Pickers (fzf-lua)
+
 ```vim
-<          " Indent left (keeps selection)
->          " Indent right (keeps selection)
+<leader><space>  " Find files (root)
+<leader>ff       " Find files (root)
+<leader>fF       " Find files (cwd)
+<leader>fg       " Find git files
+<leader>fb       " Buffers
+<leader>fr       " Recent files
+<leader>fc       " Find config file
 ```
 
-**Tip:** Use in visual mode to indent multiple lines without losing selection.
+### Grep and symbols
 
-## 🔍 Navigation and Search
-
-### File Search
 ```vim
-<leader>ff    " Find files (fzf-lua)
-<leader>fg    " Find git files
-<leader>fb    " List open buffers
-<leader>fr    " Recent files
+<leader>/        " Live grep (root)
+<leader>sg       " Live grep (root)
+<leader>sG       " Live grep (cwd)
+<leader>sw       " Word under cursor (root)
+<leader>sW       " Word under cursor (cwd)
+<leader>sd       " Workspace diagnostics
+<leader>sD       " Buffer diagnostics
+<leader>sk       " Search keymaps
+<leader>sh       " Help pages
 ```
 
-**Mnemonic Sequence:** "Find Files", "Find Git files", "Find Buffers", "Find Recent"
+### Buffers
 
-**Exercise:** Use `<leader>ff` to open a file, then `<leader>fb` to return to buffers.
-
-### Advanced Search
 ```vim
-<leader>sg    " Search text with grep (root)
-<leader>sw    " Search word under cursor (root)
-<leader>sG    " Search text with grep (cwd)
-<leader>sh    " Search help pages
+<leader>bb       " Switch to other buffer
+<leader>bd       " Delete buffer
+<leader>bo       " Delete other buffers
+<leader>bi       " Delete invisible buffers
 ```
 
-## 💻 Code Development (LSP)
+### File explorer (Neo-tree)
 
-### Code Navigation
 ```vim
-gd         " Go to definition
-gr         " Go to references
-K          " Show documentation (hover)
+<leader>e        " Toggle explorer (root)
+<leader>E        " Toggle explorer (cwd)
+<leader>fe       " Toggle explorer (root)
+<leader>fE       " Toggle explorer (cwd)
+<leader>ge       " Git status explorer
+<leader>be       " Buffer explorer
 ```
 
-**Sequence:** g + d (definition), g + r (references), K (know/Knowledge)
+Inside Neo-tree, use `a` to add, `d` to delete, `r` to rename, `y` to copy, and
+`p` to paste.
 
-### Code Actions
+## 3. Code and LSP
+
+### Navigation
+
 ```vim
-<leader>ca    " Available code actions
-<leader>rn    " Rename symbol
-<leader>cR    " Refactor structure
+gd               " Go to definition
+gr               " References
+gI               " Implementation
+K                " Hover documentation
+gh               " Hover (this config remaps gh to K)
 ```
 
-### Diagnostics
+### Actions
+
 ```vim
-]d         " Next error/diagnostic
-[d         " Previous error
-<leader>cd " Current line diagnostic
-<leader>cD " Workspace diagnostics
+<leader>ca       " Code action
+<leader>cA       " Source action
+<leader>cr       " Rename symbol (inc-rename)
+<leader>cR       " Rename file
+<leader>cf       " Format buffer
+<leader>co       " Organize imports (Java)
+<leader>cxv      " Extract variable
+<leader>cxc      " Extract constant
+<leader>cxm      " Extract method (visual mode)
 ```
 
-**Tip:** Use `]d` and `[d` to quickly navigate between errors.
+### Diagnostics and trouble
 
-## 📝 Git Integration
-
-### Git Commands
 ```vim
-<leader>gg    " Open Lazygit
-<leader>gb    " Current line blame
-<leader>gd    " File diff
-<leader>gD    " File diff (split)
+]d / [d          " Next/previous diagnostic
+<leader>cd       " Line diagnostics
+<leader>xx       " Workspace diagnostics (Trouble)
+<leader>xX       " Buffer diagnostics (Trouble)
+<leader>cs       " Symbols (Trouble)
+<leader>cS       " LSP references/definitions (Trouble)
+]q / [q          " Next/previous quickfix item
 ```
 
-### Hunk Navigation
+## 4. Git
+
+### Lazygit and pickers
+
 ```vim
-]c         " Next git hunk
-[c         " Previous hunk
+<leader>gg       " Lazygit (repository root)
+<leader>gG       " Lazygit (cwd)
+<leader>gd       " Git diff (files)
+<leader>gs       " Git status
+<leader>gl       " Git log
+<leader>gb       " Blame line
+<leader>gf       " Current file history
+<leader>gc       " Commits
 ```
 
-**Tip:** Use to navigate between changes in the file.
+### Hunk workflow (gitsigns)
 
-## 🖥️ Terminal and Sessions
-
-### Integrated Terminal
 ```vim
-<C-/>      " Toggle terminal
-<leader>ft " Terminal in project root directory
-<leader>fT " Terminal in current directory
+]h / [h          " Next/previous hunk
+]H / [H          " Last/first hunk
+<leader>ghs      " Stage hunk
+<leader>ghr      " Reset hunk
+<leader>ghS      " Stage buffer
+<leader>ghu      " Undo stage hunk
+<leader>ghp      " Preview hunk inline
+<leader>ghb      " Blame line
+<leader>ghB      " Blame buffer
+<leader>ghd      " Diff this
+<leader>ghD      " Diff this against HEAD~1
 ```
 
-### Sessions
+### Fugitive
+
+Fugitive is lazy-loaded. These commands open it on demand:
+
 ```vim
-<leader>qs    " Restore session
-<leader>qS    " Select session
-<leader>ql    " Restore last session
-<leader>qd    " Don't save current session
+:Git             " Status
+:Git diff        " Diff
+:Gdiffsplit      " Diff in a split
+:Gread           " Revert the current file from Git
+:Gwrite          " Stage/write the current file
+:Ggrep pattern   " Git grep
 ```
 
-## 📁 File Explorer (Neo-tree)
+Octo adds GitHub issue/PR browsing; it is not a second general Git UI.
 
-### Basic Navigation
+## 5. Tests
+
+### Generic (Neotest)
+
 ```vim
-<leader>e     " Toggle explorer
-<leader>E     " Focus on explorer
+<leader>tt       " Run current test file
+<leader>tT       " Run all test files
+<leader>tr       " Run nearest test
+<leader>ts       " Toggle summary
+<leader>to       " Show output
+<leader>tO       " Toggle output panel
+<leader>tS       " Stop
+<leader>tw       " Toggle watch
+<leader>td       " Debug nearest test
 ```
 
-### Explorer Actions
+### Java (JDTLS)
+
+In a Java buffer, these buffer-local maps replace the generic ones:
+
 ```vim
-a          " Create file/directory
-d          " Delete file/directory
-r          " Rename
-y          " Copy
-p          " Paste
+<leader>tt       " Run all tests in the current class (JDTLS)
+<leader>tr       " Run the nearest test method (JDTLS)
+<leader>tT       " Pick a test (JDTLS)
 ```
 
-## 🔧 Java Development (Specialized)
+The Java test runner is the JDTLS DAP integration. `neotest-java` is deliberately
+not installed, so there is only one Java test path. Test output goes to the DAP
+repl; `Tests finished. Results printed to dap-repl.` means it completed.
 
-All Java keymaps live under **`<leader>j`** and are loaded automatically when you open a `.java` file.
+## 6. Debugging (DAP)
 
-### Run & Build
 ```vim
-<leader>jrs    " Run Spring Boot (mvn spring-boot:run / ./gradlew bootRun)
-<leader>jrp    " Run Spring Boot with profile (dev/test/prod/local)
-<leader>jrk    " Stop the running app/build (sends SIGINT and closes the terminal)
-<leader>jrm    " Maven build (clean install -DskipTests)
-<leader>jrg    " Gradle build (./gradlew build)
+<leader>dc       " Run/continue
+<leader>da       " Run with arguments
+<leader>db       " Toggle breakpoint
+<leader>dB       " Conditional breakpoint
+<leader>dC       " Run to cursor
+<leader>di       " Step into
+<leader>dO       " Step over
+<leader>do       " Step out
+<leader>dP       " Pause
+<leader>dr       " Toggle REPL
+<leader>du       " Toggle DAP UI
+<leader>de       " Evaluate expression
+<leader>dt       " Terminate
+<leader>dl       " Run last
 ```
 
-**Always prefers the project wrapper** (`./mvnw`, `./gradlew`) when present.
+Java main-class configurations are registered automatically. Set a breakpoint,
+then use `<leader>dc`.
 
-### Maven
+## 7. Java toolbox
+
+Every action is under `<leader>j`. `<leader>j?` opens `:JavaCommands`.
+
+### Run and build
+
 ```vim
-<leader>jmt    " Maven test
-<leader>jmv    " Maven verify
-<leader>jmp    " Maven package
+<leader>jrs      " Run Spring Boot
+<leader>jrp      " Run with a profile
+<leader>jrk      " Stop the app/build
+<leader>jrm      " Maven clean install
+<leader>jrg      " Gradle build
 ```
 
-### Gradle
+### Maven and Gradle
+
 ```vim
-<leader>jwt    " Gradle test
-<leader>jwc    " Gradle clean build
+<leader>jmt      " Maven test
+<leader>jmv      " Maven clean verify
+<leader>jmp      " Maven clean package
+<leader>jwt      " Gradle test
+<leader>jwc      " Gradle clean build
 ```
 
 ### Generators
+
 ```vim
-<leader>jn    " New Java file (Class/Abstract/Interface/Enum/Record)
-<leader>js    " New Spring Boot file (Controller/Service/Repository/Entity/DTO/Mapper/Config/Exception)
-<leader>jg    " Generate full CRUD (Entity/Repository/Service/Controller/DTOs)
+<leader>jn       " New Java class/interface/enum/record
+<leader>js       " New Spring component
+<leader>jg       " Generate a CRUD stack
 ```
 
-**Note:** The CRUD generator asks whether you use Lombok and maps DTO<->Entity fields automatically.
+### Database and Spring profiles
 
-### Database (Flyway)
 ```vim
-<leader>jbr    " Run Flyway migrate
-<leader>jbn    " New migration (auto-numbered V{n}__description.sql)
-```
-
-### Profiles (Spring Boot)
-```vim
-<leader>jps    " Switch active profile
-<leader>jpn    " Create new profile (properties/yml/yaml)
-<leader>jpe    " Edit application.properties/yml
-<leader>jpp    " Edit profile-specific config
-<leader>jpi    " Show active + available profiles
+<leader>jbr      " Flyway migrate
+<leader>jbn      " New Flyway migration
+<leader>jps      " Switch Spring profile
+<leader>jpn      " Create a Spring profile
+<leader>jpe      " Edit application config
+<leader>jpp      " Edit profile config
+<leader>jpi      " Show profile info
 ```
 
 ### Dependencies
+
 ```vim
-<leader>jda    " Add dependency (auto-inserts into pom.xml / build.gradle, latest version from Maven Central)
-<leader>jdt    " Show dependency tree
-<leader>jdu    " Show available dependency updates
-<leader>jdv    " Check vulnerabilities (OWASP dependency-check)
+<leader>jda      " Add dependency (latest version from Maven Central)
+<leader>jdt      " Dependency tree
+<leader>jdu      " Check dependency updates
+<leader>jdv      " Check vulnerabilities
 ```
 
-### LSP / Tests (via LazyVim's Java extra)
-LSP-driven operations are handled by JDTLS through the standard LazyVim keys:
+**Mnemonic:** `r` run, `m` Maven, `w` Gradle wrapper, `b` database,
+`p` profile, `d` dependencies, `n`/`s`/`g` generators.
+
+## 8. OpenCode
+
+OpenCode is the coding agent. Supermaven is only inline completion; Blink handles
+completion. These maps are provided by `opencode.nvim` under `<leader>o`.
+
+### Core
+
 ```vim
-<leader>cxv   " Extract variable
-<leader>cxc   " Extract constant
-<leader>cxm   " Extract method (visual mode)
-<leader>co    " Organize imports
-gd            " Go to definition
-K             " Show hover
-<leader>tt    " Run all tests in class (jdtls)
-<leader>tr    " Run nearest test (jdtls)
+<leader>oi       " Open prompt input
+<leader>oI       " New session
+<leader>og       " Toggle OpenCode window
+<leader>oo       " Open output
+<leader>ot       " Toggle focus
+<leader>oq       " Close window
 ```
 
-**Mnemonic:** `<leader>j` then `r` (Run), `m` (Maven), `w` (Gradle wrapper), `b` (Database),
-`p` (Profile), `d` (Dependencies), plus `n`/`s`/`g` for generators.
+### Review and context
 
-## 🎯 Keymap Groups by Prefix
-
-### `<leader>` (Space) - Main
-- **f**: Find/File operations
-- **s**: Search operations
-- **g**: Git operations
-- **c**: Code operations
-- **q**: Session/quit operations
-- **w**: Window operations
-- **b**: Buffer operations
-- **h**: Help/documentation
-
-### `<leader>J` - Java (Specialized)
-- **jr**: Run/Build operations
-- **jm**: Maven (test, verify, package)
-- **jw**: Gradle wrapper (test, clean build)
-- **jb**: Database (Flyway)
-- **jp**: Profiles
-- **jd**: Dependencies
-- **jn / js / jg**: Generators (Java, Spring, CRUD)
-
-**Note:** Testing, refactoring, and LSP actions are handled by JDTLS via LazyVim
-keys (`<leader>c*` for code actions, `<leader>t*` for tests).
-
-## 🚀 Learning Tips
-
-### 1. Learn Progressively
-- Start with basic navigation (HJKL, windows)
-- Then searches (ff, fg, fb)
-- Then LSP (gd, gr, K)
-- Finally specializations (Java, Git)
-
-### 2. Use Which-Key
-The which-key plugin automatically shows available options when you press `<leader>`.
-
-### 3. Practice Daily
-- Open Neovim and practice 5-10 minutes per day
-- Use `:Tutor` for basic lessons
-- Experiment with new combinations
-
-### 4. Memorization by Associations
-- **gd**: "go definition" (go to definition)
-- **gr**: "go references" (go to references)
-- **K**: "Know" (knowledge/documentation)
-- **<leader>ff**: "find files" (find files)
-
-### 5. Essential Shortcuts for Beginners
 ```vim
-# Navigation
-h j k l          # Basic movement
-w b              # Word forward/back
-0 $              # Start/end of line
-gg G             # Top/bottom of file
-
-# Editing
-i a              # Insert/Append
-o O              # New line below/above
-x dd             # Delete char/line
-u Ctrl+r         # Undo/Redo
-
-# Search
-/ ?              # Search forward/backward
-n N              # Next/previous occurrence
-* #              # Search word under cursor
+<leader>od       " Open the diff view
+<leader>o]       " Next diff
+<leader>o[       " Previous diff
+<leader>oc       " Close diff
+<leader>oy       " Add visual selection to context (visual mode)
+<leader>oY       " Insert visual selection inline (visual mode)
 ```
 
-### 6. Important Commands
+### Sessions
+
 ```vim
-:w :q :wq         # Save/Quit/Save and quit
-:e <file>         # Open file
-:sp :vsp          # Split horizontal/vertical
-:buffers          # List buffers
-:help <topic>     # Help
+<leader>oh       " History
+<leader>os       " Select session
+<leader>oT       " Timeline
+<leader>oN       " New session tab
+<leader>o< / >   " Previous/next session tab
 ```
 
-## 🎮 Practical Exercises
+### Model and provider
 
-### Exercise 1: Basic Navigation
-1. Open a large file
-2. Use `gg` to go to top
-3. Use `G` to go to bottom
-4. Use `50G` to go to line 50
-5. Use `/word` to search
-6. Use `n` for next occurrence
+```vim
+<leader>op       " Configure provider
+<leader>oV       " Configure model variant
+```
 
-### Exercise 2: Multi-window Editing
-1. `:vsplit` to split vertically
-2. `<C-l>` and `<C-h>` to navigate
-3. Open different files in each window
-4. `:sp` to split horizontally
-5. Practice navigation with `<C-j>` and `<C-k>`
+Outside Neovim, use `opencode` for the TUI and `opencode debug config` to inspect
+the resolved configuration. Context7 is the only default MCP.
 
-### Exercise 3: Java Development
-1. Open a `.java` file
-2. Use `<leader>jrs` to run Spring Boot
-3. Use `<leader>tt` to run tests (jdtls)
-4. Use `gd` to go to definition
-5. Use `<leader>ca` for code actions (LazyVim built-in)
+## 9. REST and GraphQL
 
-### Exercise 4: Git Workflow
-1. Make changes to a file
-2. Use `<leader>gd` to see diff
-3. Use `<leader>gg` to open Lazygit
-4. Navigate hunks with `]c` and `[c`
+Open an `.http` file, place the cursor in a request, then:
 
-## 🔍 Troubleshooting
+```vim
+<leader>Rs       " Send request
+<leader>Rr       " Replay last request
+<leader>Ro       " Open result pane
+<leader>Re       " Select environment
+<leader>Rc       " Edit cookies
+<leader>Rl       " Open logs
+```
 
-### Keymap not working?
-1. Check if you're in the correct mode (normal/visual/insert)
-2. Confirm plugin is loaded (`:Lazy`)
-3. Use `:verbose map <key>` to see mappings
-4. Check conflicts with `:map`
+Example:
 
-### Forgot a keymap?
-- Press `<leader>` and wait (which-key)
-- Consult this guide
-- Use `:help` for official documentation
+```http
+@base = http://localhost:8080
 
-### Slow performance?
-- Use local keymaps when possible
-- Avoid recursive mappings
-- Configure appropriate timeouts
+### Health
+GET {{base}}/actuator/health
+
+### Create order
+POST {{base}}/api/orders
+Content-Type: application/json
+
+{"sku": "ABC-1", "quantity": 2}
+```
+
+## 10. SQL
+
+```vim
+<leader>D        " Toggle Dadbod UI
+<leader>S        " Execute query under cursor (inside DBUI, normal/visual)
+```
+
+Keep database URLs in a local `.lazy.lua`, environment variables, or Dadbod’s
+connection store; never commit them.
+
+## 11. Sessions and quitting
+
+```vim
+<leader>qs       " Restore session
+<leader>qS       " Select session
+<leader>ql       " Restore last session
+<leader>qd       " Don't save current session
+<leader>qq       " Quit all
+```
+
+## 12. Learning path
+
+1. **Week 1:** `h j k l`, `w b`, `gg G`, `i a o`, `dd u <C-r>`, `/ n`.
+2. **Week 2:** window navigation, `<leader>ff`, `<leader>sg`, `<leader>fb`,
+   `<leader>e`.
+3. **Week 3:** `gd`, `gr`, `K`, `<leader>ca`, `<leader>cr`, diagnostics.
+4. **Week 4:** Git hunks, Lazygit, sessions, Java tests and debugging.
+5. **Ongoing:** OpenCode (`<leader>oi`, `<leader>od`) and REST (`<leader>Rs`).
+
+### Practice exercises
+
+1. Open a project, jump to a class with `<leader>ff`, then `gd` into a method.
+2. Use `<leader>ca` to fix an import, then `<leader>cf` to format.
+3. Make two edits, stage one hunk with `<leader>ghs`, and inspect the diff with
+   `<leader>gd`.
+4. Open a Java test, run `<leader>tr` on one method, then `<leader>tt` for the
+   class.
+5. Set a breakpoint with `<leader>db`, start with `<leader>dc`, and step with
+   `<leader>dO`, `<leader>di`, and `<leader>do`.
+6. Open an `.http` file and send a request with `<leader>Rs`.
+7. Ask OpenCode for a change with `<leader>oi`, review it with `<leader>od`, and
+   accept or revert it.
+
+## Troubleshooting
+
+### A keymap does not work
+
+1. Check the mode: normal, visual, insert, or terminal.
+2. Confirm the plugin is loaded with `:Lazy`.
+3. Inspect the mapping:
+
+   ```vim
+   :verbose map <leader>tt
+   :verbose map <leader>oi
+   ```
+
+4. In Java buffers, `<leader>tt` is buffer-local and intentionally different
+   from Neotest.
+
+### Which-key does not show a group
+
+Run `:Lazy load which-key`, then press `<leader>` again. In headless runs,
+which-key may not initialize; the Java test maps are still set directly in
+JDTLS `on_attach`.
+
+### Startup feels slow
+
+Use `:Lazy profile` and compare against the warm baseline in
+[`nvim/README.md`](nvim/README.md). WakaTime, OpenCode, REST, and Fugitive are
+lazy-loaded; an accidental eager plugin is the usual cause.
 
 ---
 
-**💡 Final Tip:** Practice makes perfect. Start slow, focus on 3-5 keymaps per day, and gradually build your command vocabulary. Neovim is a powerful tool - master the keymaps and you'll be much more productive!</content>
-</xai:function_call">Write file KEYMAPS_LEARNING.md
+**Tip:** Learn 3–5 maps per day and use them until they are automatic. The goal
+is not to memorize every mapping; it is to keep the common Java, Git, test, and
+agent workflows within reach.
