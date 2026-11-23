@@ -208,14 +208,27 @@ opencode reload                # reload config in the running service
 
 ### Validation
 
+Run the same checks locally from the repository root:
+
 ```bash
 cd nvim
 stylua --check lua init.lua tests
 luacheck lua init.lua tests
 ./tests/run.sh
+cd ..
+markdownlint-cli2 README.md KEYMAPS_LEARNING.md nvim/README.md \
+  opencode/AGENTS.md opencode/README.md opencode/skills/java-backend/SKILL.md
 ```
 
-The CI workflow under `.github/workflows/nvim.yml` runs StyLua and Luacheck.
+The CI workflow under `.github/workflows/nvim.yml` runs all of these checks. It
+uses pinned action commits and these tool versions: StyLua 2.5.2, Luacheck
+1.2.0, Neovim v0.12.6 for the headless Java specs, and markdownlint-cli2
+0.23.2. Install them locally with `cargo install stylua --version 2.5.2`,
+`luarocks install luacheck 1.2.0`, a Neovim v0.12.6 release, and
+`npm install --global markdownlint-cli2@0.23.2`.
+
+CI has `contents: read` only. To reproduce a failure, run the commands above
+with those versions; do not weaken a check to force a green result.
 
 ## Verified behavior
 
@@ -283,8 +296,8 @@ The last was blocked by the configured provider's insufficient-credit response
   chosen UI; this is intentional.
 - The Go LazyVim extra is enabled but the Go toolchain is not installed. Remove
   the extra or install Go if that language is used.
-- CI currently lints but does not run the headless Java specs. Add a pinned
-  Neovim step before relying on CI for behavior changes.
+- CI runs StyLua, Luacheck, headless Java specs, and Markdown lint; a live DAP
+  smoke test remains a manual check.
 - GraphQL requests are supported through `.http`; there is no dedicated gRPC
   client or Kubernetes plugin. Those workflows use Java tooling and the
   `java-backend` skill.

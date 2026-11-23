@@ -4,10 +4,18 @@ on:
   push:
     paths:
       - "nvim/**"
+      - "opencode/**"
+      - "*.md"
+      - "**/*.md"
+      - ".markdownlint-cli2.yaml"
       - ".github/workflows/nvim.yml"
   pull_request:
     paths:
       - "nvim/**"
+      - "opencode/**"
+      - "*.md"
+      - "**/*.md"
+      - ".markdownlint-cli2.yaml"
       - ".github/workflows/nvim.yml"
 
 permissions:
@@ -15,14 +23,15 @@ permissions:
 
 jobs:
   lint:
+    name: Lint and test
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
       - name: Install StyLua
-        uses: JohnnyMorganz/stylua-action@v4
+        uses: JohnnyMorganz/stylua-action@479972f01e665acfcba96ada452c36608bdbbb5e # v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           version: "2.5.2"
@@ -32,12 +41,28 @@ jobs:
         working-directory: nvim
         run: stylua --check lua init.lua tests
 
-      - name: Install luacheck
+      - name: Install Luacheck
         run: |
           sudo apt-get update
           sudo apt-get install -y liblua5.4-dev lua5.4 luarocks
-          sudo luarocks --lua-version=5.4 install luacheck
+          sudo luarocks --lua-version=5.4 install luacheck 1.2.0
 
       - name: Luacheck
         working-directory: nvim
         run: luacheck lua init.lua tests
+
+      - name: Set up Neovim
+        uses: rhysd/action-setup-vim@febef33995d6649302e9d88dda81e071b68f16a7 # v1.6.1
+        with:
+          neovim: true
+          version: v0.12.6
+
+      - name: Java tooling tests
+        working-directory: nvim
+        run: ./tests/run.sh
+
+      - name: Install markdownlint-cli2
+        run: npm install --global markdownlint-cli2@0.23.2
+
+      - name: Markdown lint
+        run: markdownlint-cli2 README.md KEYMAPS_LEARNING.md nvim/README.md opencode/AGENTS.md opencode/README.md opencode/skills/java-backend/SKILL.md

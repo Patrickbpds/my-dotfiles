@@ -336,8 +336,8 @@ luacheck lua init.lua tests
 ```
 
 The test script runs each `tests/*_spec.lua` with `nvim --headless -u NONE -l`.
-The CI workflow in `.github/workflows/nvim.yml` currently runs StyLua and
-Luacheck.
+The CI workflow also runs these checks plus Markdown lint; see the root
+README for pinned tool versions and how to reproduce CI failures locally.
 
 Local validation performed for this configuration:
 
