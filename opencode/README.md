@@ -81,12 +81,38 @@ OpenCode discovers:
 - `~/.agents/skills` and `~/.claude/skills` (global compatibility)
 - `.opencode/skills`, `.agents/skills`, and `.claude/skills` in projects
 
-The custom `java-backend` skill covers build-tool detection, Maven/Gradle
-commands, Spring Boot conventions, JPA/migrations, JUnit/Mockito,
-Kafka/Redis failure modes, and a review checklist. It is loaded on demand by
-the agent rather than injected into every prompt.
+The repository-owned skill is `skills/java-backend/SKILL.md`. Its ID is
+path-derived (`java-backend`), not the display name. The `description` tells
+OpenCode when to advertise it; the agent loads the Markdown body through the
+`skill` tool instead of receiving it in every prompt. No filesystem path needs
+to be supplied by the user.
 
-The existing general skills were reviewed individually. The most useful for
+Its scope is Java 17/21+ and Spring Boot implementation, reviews, build
+failures, REST APIs, persistence and transactions, Kafka messaging, tests, and
+production readiness. It covers build-tool detection, Maven/Gradle commands,
+engineering trade-offs, Spring Boot and HTTP conventions, transaction and
+migration guidance, idempotent consumers and retry policy, test strategy, and a
+review checklist. Deployment platforms such as Docker, Kubernetes, and AWS are
+intentionally outside this skill; use project-specific documentation when a
+task needs them.
+
+To check registration and activation without a model call:
+
+```bash
+opencode api skill.list --param location.directory="$PWD"
+opencode debug agents
+```
+
+The first command should list `java-backend` with the local skill path and a
+description. The second should show that the `build` and `general` agents deny
+only the `browser` skill, so `java-backend` remains available. For a full
+runtime test that requires provider credits:
+
+```bash
+opencode run --format json "Use @java-backend to review this Java Spring Boot change."
+```
+
+Existing general skills were reviewed individually. The most useful for
 this workstation are:
 
 | Skill | Use |
@@ -137,6 +163,8 @@ permissions:
 
 ## Validation
 
+Configuration and MCP checks:
+
 ```bash
 opencode debug config
 opencode debug agents
@@ -150,13 +178,33 @@ read/edit denials and the `.env.example` allowances. `mcp list` should print
 `✓ context7 connected` once the background service has started.
 
 Live Context7 calls were verified through the MCP protocol: `resolve-library-id`
-selected official Spring Boot and Java SE libraries, and `query-docs` returned
-Spring Boot 3.5 configuration-property guidance and Java SE 21 virtual-thread
-documentation. No API key was used.
+selected official Spring Boot, Apache Kafka, and Java SE libraries, and
+`query-docs` returned Spring Boot transaction guidance, Kafka delivery-semantics
+documentation, and Java SE 21 virtual-thread documentation. No API key was used.
 
-Model-driven skill invocation remains unverified: a live `opencode run` task
-was blocked by the configured provider's HTTP 402 insufficient-credit response.
-This is a provider account limitation, not a configuration error.
+Runtime skill status against OpenCode 2.4.1:
+
+| Check | Status |
+| --- | --- |
+| Path, ID, and frontmatter | PASS |
+| Registration via `opencode api skill.list` | PASS |
+| Advertisement to the `build` agent | PASS |
+| Skill body activation via `experimental.session.skill` | PASS |
+| Model-driven instruction following | BLOCKED |
+| Engineering scenarios A–D | NOT RUN |
+
+Activation was tested in a disposable session and appended the skill body as a
+`type: skill` message; no repository files were created by that probe. This
+proves discovery and loading, **not** that a model followed the instructions.
+
+A live `opencode run` failed before any model response with `provider.quota`
+(HTTP 402): the OpenRouter account could afford 1,358 of roughly 225,000
+requested tokens. The configured providers are OpenRouter (API key) and OpenAI (OAuth);
+no provider or model was changed. Because of that restriction, the REST,
+persistence, Kafka, and code-review prompts could not be submitted to the agent
+and are not claimed as validated. Add credits or lower the configured token
+budget, then run the prompt in the Skills section and inspect the session trace
+for a `skill` tool call and the resulting code/tests.
 
 Inside Neovim:
 

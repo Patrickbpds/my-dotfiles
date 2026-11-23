@@ -235,7 +235,7 @@ with those versions; do not weaken a check to force a green result.
 The following checks were executed locally and passed:
 
 - StyLua 2.5.2 and Luacheck 1.2.0: 0 warnings, 0 errors across 34 files;
-  Markdown lint: 0 issues in 4 documents.
+  Markdown lint: 0 issues in 6 documents.
 - `./tests/run.sh`: all Java toolbox specs passed.
 - Warm startup: 28–36 ms in quiet runs; cold first run: 129 ms.
 - JDTLS attach, `:JdtCompile`, `:JavaCommands`, LemMinX on `pom.xml`, and
