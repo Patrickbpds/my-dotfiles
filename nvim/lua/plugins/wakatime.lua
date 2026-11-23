@@ -1,6 +1,8 @@
 return {
   {
     "wakatime/vim-wakatime",
-    lazy = false,
+    -- WakaTime's setup probes/installs its CLI and is network-bound; keep it
+    -- off the measured startup path. It still loads before user interaction.
+    event = "VeryLazy",
   },
 }

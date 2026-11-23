@@ -24,8 +24,10 @@ require("lazy").setup({
     version = false,
   },
   install = { colorscheme = { "tokyonight", "habamax" } },
+  -- Keep startup deterministic: updates are reviewed explicitly with :Lazy check
+  -- or :Lazy update instead of being checked on every launch.
   checker = {
-    enabled = true,
+    enabled = false,
     notify = false,
   },
   performance = {
